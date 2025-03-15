@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from 'next/link';
 import styles from "@/styles/HamburgerMenu.module.css"; // ✅ CSS Modulesを適用
 
 export default function HamburgerMenu() {
@@ -16,9 +17,9 @@ export default function HamburgerMenu() {
 
             {/* 🔹 メニューの中身（開いているときのみ表示） */}
             <ul className={`${styles.menuList} ${isOpen ? styles.open : ""}`}>
-                <li><a href="/measure">計測</a></li>
-                <li><a href="/history">履歴</a></li>
-                <li><a href="/workouts">設定</a></li>
+                <li><Link href="/measure/">Measure</Link></li>
+                <li><Link href="/history/">History</Link></li>
+                <li><Link href="/workouts">設定</Link></li>
             </ul>
         </div>
     );
