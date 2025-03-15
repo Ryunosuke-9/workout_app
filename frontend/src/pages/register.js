@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/register.module.css";
 
-const API_BASE_URL = "http://localhost:5000/api/register";
+// ※ URL は正しいホストとプロトコルに修正してください
+const API_URL = "http://13.231.79.153:5000/api/register";
 
 const Register = () => {
   const router = useRouter();
@@ -15,7 +16,7 @@ const Register = () => {
   const toggleTooltip = (field) => {
     setTooltip((prev) => ({
       ...prev,
-      [field]: !prev[field], // クリックするたびに表示/非表示を切り替える
+      [field]: !prev[field],
     }));
   };
 
@@ -33,7 +34,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch(API_BASE_URL, {
+      const response = await fetch(API_URL, {  // 修正: API_BASE_URL → API_URL
         method: "POST",
         headers: {
           "Content-Type": "application/json",
