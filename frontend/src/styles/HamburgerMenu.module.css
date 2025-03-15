@@ -1,0 +1,62 @@
+/* 📌 メニューコンテナ */
+.menuContainer {
+    position: relative;
+    top: 0px;
+    right: 10px;
+    z-index: 10;
+}
+
+/* 📌 メニューボタン */
+.menuButton {
+    background: linear-gradient(135deg, #222, #444);
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(255, 255, 255, 0.2);
+}
+
+/* 📌 メニューリストの初期状態（完全非表示） */
+.menuList {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: linear-gradient(135deg, #222, #555);
+    color: white;
+    list-style: none;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0px 6px 12px rgba(255, 255, 255, 0.1);
+    width: 200px;
+}
+
+/* 📌 メニューが開いたとき */
+.menuList.open {
+    display: block;
+}
+
+/* 📌 メニュー項目 */
+.menuList li {
+    padding: 12px 0;
+    text-align: left;
+}
+
+/* 📌 メニューリンク */
+.menuList li a {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    display: block;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+/* 📌 ホバー時 */
+.menuList li a:hover {
+    background: rgba(255, 165, 0, 0.5);
+    color: #fff;
+}

@@ -1,0 +1,209 @@
+/* Google Fonts を適用 */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* 📌 全体のスタイル */
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    padding: 0;
+    margin: 0;
+}
+
+/* 📌 ヘッダー */
+.headerContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    padding: 15px;
+    background: linear-gradient(90deg, #222, #444);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.headerContainer h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* 📌 メインのレイアウト */
+.contentContainer {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    margin-top: 20px;
+    min-height: 600px;
+    gap: 30px;
+}
+
+/* 📌 左カラム（日付ごとの履歴） */
+.leftColumn {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    background: linear-gradient(135deg, #222, #444);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.historyHeader {
+    display: flex;
+    align-items: center;    
+    gap: 30px; /* タイトルとセレクトの間隔 */
+    margin-bottom: 10px;
+    justify-content: center;
+}
+
+/* もし見出しの余白が邪魔になる場合は下記を調整 */
+.historyHeader h2 {
+    margin: 0;
+}
+
+/* 📌 日付選択ドロップダウン */
+.dateSelect {
+    width: auto;
+    padding: 10px;
+    background: #333;
+    border: 2px solid #777;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+}
+
+/* 📌 右カラム（全記録の合計筋値） */
+.rightColumn {
+    width: 35%;
+    background: linear-gradient(135deg, #222, #444);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2), 0 4px 10px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 📌 タイトルデザイン */
+.pageContainer h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffcc00;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+/* 📌 テーブルのデザイン */
+.historyTable, .summaryTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #222;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.historyTable th, .summaryTable th {
+    background: linear-gradient(135deg, #2b2b2b, #4b4b4b);
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffcc00;
+    border-bottom: 2px solid #777;
+    text-align: center;
+}
+
+.historyTable td, .summaryTable td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: center;
+    font-size: 16px;
+    color: #fff;
+}
+
+/* 総合合計筋値の固定行などに使う例 */
+.fixedTotalRow {
+    background-color: rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+}
+
+/* 📌 「データがありません」メッセージ */
+.noDataMessage {
+    margin-top: 10px;
+    color: #ccc;
+    text-align: center;
+}
+
+/* 📌 グラフコンテナのデザイン（必要なら） */
+.graphContainer {
+    width: 10%;  /* グラフの幅を小さくした例 */
+    max-width: 100px;
+    background: linear-gradient(135deg, #222, #444);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    margin: 20px auto;
+}
+
+/* 📌 グラフを幅いっぱいに広げる */
+.graphWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* 📌 グラフのレスポンシブコンテナ */
+.graphContainer .recharts-responsive-container {
+    width: 100% !important;
+    height: 300px;
+}
+
+/* 📌 グラフのタイトル */
+.graphTitle {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffcc00;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+/* 📌 カテゴリ選択のデザイン */
+.graphSelectLabel {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    margin-right: 10px;
+}
+
+.graphSelect {
+    padding: 8px;
+    border-radius: 8px;
+    background: #333;
+    color: #fff;
+    border: 2px solid #555;
+    font-size: 16px;
+}
+
+/* 📌 スクロールバーをカスタマイズ（お好みで） */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #777;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #222;
+}

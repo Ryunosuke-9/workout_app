@@ -1,0 +1,106 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #e3f2fd;
+}
+
+/* タイトルを中央トップに配置 */
+.title {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px; /* 📌 フォームとの間隔を調整 */
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 350px;
+}
+
+.input-container {
+  position: relative;
+  width: 90%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.question-mark {
+  position: absolute;
+  right: -25px; /* 📌 フォームの横に配置 */
+  cursor: pointer;
+  color: #ff5733;
+  font-size: 18px;
+}
+
+.tooltip {
+  position: absolute;
+  right: -150px; /* 📌 吹き出しを右側に配置 */
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-size: 12px;
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.2s, opacity 0.2s;
+}
+
+.input-container .question-mark:hover + .tooltip,
+.input-container .tooltip.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.RegisterButton {
+  width: 10%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.RegisterButton:hover {
+  background-color: #0056b3;
+}
