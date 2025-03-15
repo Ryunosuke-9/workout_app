@@ -193,17 +193,3 @@
     border: 2px solid #555;
     font-size: 16px;
 }
-
-/* 📌 スクロールバーをカスタマイズ（お好みで） */
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #777;
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-track {
-    background: #222;
-}

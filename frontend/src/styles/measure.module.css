@@ -301,18 +301,3 @@
     text-align: center;
     margin-bottom: 10px;
 }
-
-
-/* 📌 スクロールバーをカスタマイズ */
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #777;
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-track {
-    background: #222;
-}
