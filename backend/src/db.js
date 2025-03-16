@@ -1,5 +1,7 @@
 const mysql = require("mysql2");
-require("dotenv").config();
+require('dotenv').config({ path: __dirname + '/../.env' });
+
+console.log("DB_USER:", process.env.DB_USER);
 
 // MySQL データベース接続設定
 const pool = mysql.createPool({
