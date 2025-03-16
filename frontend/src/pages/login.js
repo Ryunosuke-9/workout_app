@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/login.module.css";
 
-const API_BASE_URL = "http://localhost:5000/api/login";
+const API_BASE_URL = "http://13.231.79.153:5000/api/login";
 
 const Login = () => {
   const router = useRouter();
