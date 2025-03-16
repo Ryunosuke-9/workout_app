@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/register.module.css";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = "http://13.231.79.153:5000/api/register";
 
 const Register = () => {
   const router = useRouter();
