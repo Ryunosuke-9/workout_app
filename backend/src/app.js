@@ -23,4 +23,3 @@ app.use("/api/history", authenticateToken,historyRoutes);
 // ✅ `app` のみをエクスポート（`{ app }` ではなく `app`）
 module.exports = app;
 
-p
