@@ -10,13 +10,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import styles from "@/styles/history.module.css";
-import HamburgerMenu from "@/hooks/HamburgerMenu";
-import useAuth from "@/hooks/Auth"
+import HamburgerMenu from "@/components/HamburgerMenu"; // ✅ components に変更
+import useAuth from "@/components/Auth"; // ✅ hooks ではなく components に変更
 
-const API_BASE_URL = "http://localhost:5000/api/history";
+const API_URL = "http://13.231.79.153:5000/api/history";
 
 const HistoryPage = () => {
-  useAuth();
+  useAuth(); // ✅ 認証チェックを適用
   const router = useRouter();
   const [dailyHistory, setDailyHistory] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
@@ -26,27 +26,25 @@ const HistoryPage = () => {
   const [weeklyData, setWeeklyData] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("total_muscle");
 
-  
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = sessionStorage.getItem("token");
         if (!token) throw new Error("No token");
-        const headers = { "Authorization": `Bearer ${token}` };
+        const headers = { Authorization: `Bearer ${token}` };
 
-        const totalRes = await fetch(`${API_BASE_URL}/totals`, { headers });
+        const totalRes = await fetch(`${API_URL}/totals`, { headers });
         if (!totalRes.ok) throw new Error(`Server error: ${totalRes.status}`);
         const totalData = await totalRes.json();
         setCategoryTotals(totalData.categoryTotals ?? []);
         setOverallTotal(totalData.overallTotal ?? 0);
 
-        const weeklyRes = await fetch(`${API_BASE_URL}/weekly`, { headers });
+        const weeklyRes = await fetch(`${API_URL}/weekly`, { headers });
         if (!weeklyRes.ok) throw new Error(`Server error: ${weeklyRes.status}`);
         const weeklyDataResponse = await weeklyRes.json();
         setWeeklyData(weeklyDataResponse.weeklyData ?? []);
 
-        const datesRes = await fetch(`${API_BASE_URL}/dates`, { headers });
+        const datesRes = await fetch(`${API_URL}/dates`, { headers });
         if (!datesRes.ok) throw new Error(`Server error: ${datesRes.status}`);
         const datesData = await datesRes.json();
         if (!datesData || !Array.isArray(datesData.dates)) {
@@ -77,8 +75,8 @@ const HistoryPage = () => {
         console.error("No token");
         return;
       }
-      const headers = { "Authorization": `Bearer ${token}` };
-      const res = await fetch(`${API_BASE_URL}/daily?date=${dateStr}`, { headers });
+      const headers = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API_URL}/daily?date=${dateStr}`, { headers });
       if (!res.ok) {
         console.error(`Error ${res.status}:`, await res.text());
         setDailyHistory([]);
@@ -99,9 +97,10 @@ const HistoryPage = () => {
 
   const formatDateForDisplay = (dateStr) => dateStr.replace(/-/g, "/");
 
-  const maxYValue = weeklyData.length > 0
-    ? Math.max(...weeklyData.map((d) => Number(d[selectedCategory]) || 0), 100)
-    : 100;
+  const maxYValue =
+    weeklyData.length > 0
+      ? Math.max(...weeklyData.map((d) => Number(d[selectedCategory]) || 0), 100)
+      : 100;
 
   return (
     <div className={styles.pageContainer}>

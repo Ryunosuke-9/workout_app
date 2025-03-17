@@ -2,18 +2,20 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import styles from "@/styles/measure.module.css";
-import HamburgerMenu from "@/hooks/HamburgerMenu";
-import useAuth from "@/hooks/Auth";
+import HamburgerMenu from "@/components/HamburgerMenu"; // ✅ components に変更
+import useAuth from "@/components/Auth"; // ✅ hooks ではなく components に変更
+
+const API_URL = "http://13.231.79.153:5000/api/measure";
 
 const MeasurePage = () => {
-    useAuth();
+    useAuth(); // ✅ 認証チェックを適用
     const router = useRouter();
-    const [category, setCategory] = useState("chest"); // 選択された部位
-    const [exerciseName, setExerciseName] = useState(""); // 新しい種目の名前
-    const [exercises, setExercises] = useState([]); // 登録済みの種目一覧
-    const [exerciseData, setExerciseData] = useState({}); // 各種目の重量と回数を管理
-    const [isLoading, setIsLoading] = useState(false); // ローディング状態を管理
-    const [message, setMessage] = useState(""); // メッセージ表示用
+    const [category, setCategory] = useState("chest");
+    const [exerciseName, setExerciseName] = useState("");
+    const [exercises, setExercises] = useState([]);
+    const [exerciseData, setExerciseData] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState("");
     const [totalMuscleValue, setTotalMuscleValue] = useState(0);
     const [dailyRecords, setDailyRecords] = useState([]);
 
@@ -24,13 +26,9 @@ const MeasurePage = () => {
         }
 
         const { value } = event.target;
-
         setExerciseData((prevData) => ({
             ...prevData,
-            [exercise_id]: {
-                ...prevData[exercise_id],
-                [field]: value,
-            },
+            [exercise_id]: { ...prevData[exercise_id], [field]: value },
         }));
     };
 
@@ -40,16 +38,14 @@ const MeasurePage = () => {
         if (!token) {
             console.error("❌ トークンがありません。ログインしてください。");
             setMessage("⚠️ ログインが必要です。");
-            setTimeout(() => {
-                router.push("/login");
-            }, 2000);
+            setTimeout(() => router.push("/login"), 2000);
             return;
         }
 
         try {
             console.log(`📡 ${selectedCategory} の種目を取得中...`);
-            const response = await axios.get(`http://localhost:5000/api/measure/exercises/${selectedCategory}`, {
-                headers: { Authorization: `Bearer ${token}` }
+            const response = await axios.get(`${API_URL}/exercises/${selectedCategory}`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
             console.log("📊 取得した種目:", response.data);
             setExercises(response.data);
@@ -66,9 +62,7 @@ const MeasurePage = () => {
                 sessionStorage.removeItem("token");
                 localStorage.removeItem("refreshToken");
                 setMessage("⚠️ セッションが切れました。再ログインしてください。");
-                setTimeout(() => {
-                    router.push("/login");
-                }, 2000);
+                setTimeout(() => router.push("/login"), 2000);
             } else if (error.response.status === 404) {
                 console.error("❌ データなし: 今日の記録がありません");
                 setMessage("⚠️ 今日はまだトレーニングを記録していません。");
@@ -93,14 +87,13 @@ const MeasurePage = () => {
             setMessage("⚠️ 無効なカテゴリです！");
             return;
         }
-        
+
         const token = sessionStorage.getItem("token");
-    
         try {
             console.log("📡 新しい種目を追加:", { exerciseName, category });
-    
+
             await axios.post(
-                "http://localhost:5000/api/measure/exercises",
+                `${API_URL}/exercises`,
                 { name: exerciseName, category },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -117,9 +110,8 @@ const MeasurePage = () => {
 
         try {
             console.log("📡 種目を削除:", exercise_id);
-
-            await axios.delete(`http://localhost:5000/api/measure/${exercise_id}`, {
-                headers: { Authorization: `Bearer ${token}` }
+            await axios.delete(`${API_URL}/${exercise_id}`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
             setMessage("✅ 種目を削除しました！");
             await fetchExercises(category);
@@ -135,27 +127,26 @@ const MeasurePage = () => {
             setMessage("⚠️ 重量と回数を入力してください！");
             return;
         }
-    
+
         const token = sessionStorage.getItem("token");
         setIsLoading(true);
         setMessage("");
-    
+
         try {
             console.log("📡 筋トレ記録送信:", { exercise_id, weight, reps });
-    
+
             await axios.post(
-                "http://localhost:5000/api/measure",
+                API_URL,
                 { exercise_id, weight: Number(weight), reps: Number(reps) },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-    
+
             setMessage("✅ 記録しました！💪");
             setExerciseData((prev) => ({
                 ...prev,
-                [exercise_id]: { weight: "", reps: "" }
+                [exercise_id]: { weight: "", reps: "" },
             }));
-    
-            // 📌 記録後に即時「今日の総負荷量」を更新
+
             await fetchDailyMuscleValue();
         } catch (err) {
             handleAuthError(err);
@@ -170,8 +161,8 @@ const MeasurePage = () => {
 
         try {
             console.log("📡 今日の筋値データを取得中...");
-            const response = await axios.get("http://localhost:5000/api/measure/daily-muscle-summary", {
-                headers: { Authorization: `Bearer ${token}` }
+            const response = await axios.get(`${API_URL}/daily-muscle-summary`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             if (response.status === 200) {
