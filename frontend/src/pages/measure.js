@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import styles from "@/styles/measure.module.css";
-import HamburgerMenu from "@/auth/HamburgerMenu";
+import HamburgerMenu from "@/hooks/HamburgerMenu";
 import useAuth from "@/hooks/auth";
 
 const API_URL = "http://13.231.79.153:5000/api/measure";
 
 const MeasurePage = () => {
-    useAuth(); // ✅ 認証チェックを適用
+    useAuth();
     const router = useRouter();
     const [category, setCategory] = useState("chest");
     const [exerciseName, setExerciseName] = useState("");
@@ -21,24 +21,31 @@ const MeasurePage = () => {
 
     // 📌 入力値の変更処理
     const handleInputChange = (event, exercise_id, field) => {
-        if (!event || !event.target) {
-            console.error("❌ 入力エラー:", { event, exercise_id, field });
-            return;
-        }
-
         const { value } = event.target;
-        if (field === "weight" || field === "reps") {
-            if (value < 0 || isNaN(value)) return;
-        }
+        if (value === "" || isNaN(value) || value < 0) return;
 
-        setExerciseData((prevData) => ({
-            ...prevData,
-            [exercise_id]: { ...prevData[exercise_id], [field]: value },
+        setExerciseData((prev) => ({
+            ...prev,
+            [exercise_id]: { ...prev[exercise_id], [field]: value },
         }));
     };
 
-    // 📌 種目取得
-    const fetchExercises = async (selectedCategory) => {
+    // 📌 認証エラーハンドリング
+    const handleAuthError = (error) => {
+        if (error.response?.status === 403) {
+            console.error("🚨 認証エラー: トークン無効");
+            sessionStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            setMessage("⚠️ セッションが切れました。再ログインしてください。");
+            setTimeout(() => router.push("/login"), 1000);
+        } else {
+            console.error("❌ APIエラー:", error);
+            setMessage("⚠️ サーバーエラーが発生しました。");
+        }
+    };
+
+    // 📌 種目取得（useCallbackでメモ化）
+    const fetchExercises = useCallback(async (selectedCategory) => {
         const token = sessionStorage.getItem("token");
         if (!token) {
             handleAuthError({ response: { status: 403 } });
@@ -54,25 +61,11 @@ const MeasurePage = () => {
         } catch (err) {
             handleAuthError(err);
         }
-    };
-
-    // 📌 認証エラー時の処理
-    const handleAuthError = (error) => {
-        if (error.response?.status === 403) {
-            console.error("🚨 認証エラー: トークンが無効または期限切れです。");
-            sessionStorage.removeItem("token");
-            localStorage.removeItem("refreshToken");
-            setMessage("⚠️ セッションが切れました。再ログインしてください。");
-            setTimeout(() => router.push("/login"), 1000);
-        } else {
-            console.error("❌ APIエラー:", error);
-            setMessage("⚠️ サーバーエラーが発生しました。");
-        }
-    };
+    }, []);
 
     useEffect(() => {
         fetchExercises(category);
-    }, [category]);
+    }, [category, fetchExercises]);
 
     // 📌 新しい種目を追加
     const handleAddExercise = async () => {
@@ -87,7 +80,7 @@ const MeasurePage = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setExerciseName("");
-            await fetchExercises(category);
+            fetchExercises(category);
         } catch (err) {
             handleAuthError(err);
         }
@@ -102,7 +95,7 @@ const MeasurePage = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMessage("✅ 種目を削除しました！");
-            await fetchExercises(category);
+            fetchExercises(category);
         } catch (err) {
             handleAuthError(err);
         }
@@ -135,7 +128,7 @@ const MeasurePage = () => {
                 [exercise_id]: { weight: "", reps: "" },
             }));
 
-            await fetchDailyMuscleValue();
+            fetchDailyMuscleValue();
         } catch (err) {
             handleAuthError(err);
         } finally {
