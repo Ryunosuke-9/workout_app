@@ -40,3 +40,10 @@ a {
     color-scheme: dark;
   }
 }
+
+/* リセットスタイルをグローバルCSSに記述 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
