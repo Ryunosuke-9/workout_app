@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import styles from "@/styles/measure.module.css";
-import HamburgerMenu from "@/components/HamburgerMenu"; // ✅ components に変更
-import useAuth from "@/components/Auth"; // ✅ hooks ではなく components に変更
+import HamburgerMenu from "@/hooks/HamburgerMenu";
+import useAuth from "@/hooks/Auth";
 
 const API_URL = "http://13.231.79.153:5000/api/measure";
 
