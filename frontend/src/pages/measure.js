@@ -19,6 +19,20 @@ const MeasurePage = () => {
     const [totalMuscleValue, setTotalMuscleValue] = useState(0);
     const [dailyRecords, setDailyRecords] = useState([]);
 
+    // 📌 認証エラーハンドリング（useCallbackでメモ化）
+    const handleAuthError = useCallback((error) => {
+        if (error.response?.status === 403) {
+            console.error("🚨 認証エラー: トークン無効");
+            sessionStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            setMessage("⚠️ セッションが切れました。再ログインしてください。");
+            setTimeout(() => router.push("/login"), 1000);
+        } else {
+            console.error("❌ APIエラー:", error);
+            setMessage("⚠️ サーバーエラーが発生しました。");
+        }
+    }, [router]);
+
     // 📌 入力値の変更処理
     const handleInputChange = (event, exercise_id, field) => {
         const { value } = event.target;
@@ -30,20 +44,6 @@ const MeasurePage = () => {
         }));
     };
 
-    // 📌 認証エラーハンドリング
-    const handleAuthError = (error) => {
-        if (error.response?.status === 403) {
-            console.error("🚨 認証エラー: トークン無効");
-            sessionStorage.removeItem("token");
-            localStorage.removeItem("refreshToken");
-            setMessage("⚠️ セッションが切れました。再ログインしてください。");
-            setTimeout(() => router.push("/login"), 1000);
-        } else {
-            console.error("❌ APIエラー:", error);
-            setMessage("⚠️ サーバーエラーが発生しました。");
-        }
-    };
-
     // 📌 種目取得（useCallbackでメモ化）
     const fetchExercises = useCallback(async (selectedCategory) => {
         const token = sessionStorage.getItem("token");
@@ -51,7 +51,6 @@ const MeasurePage = () => {
             handleAuthError({ response: { status: 403 } });
             return;
         }
-
         try {
             console.log(`📡 ${selectedCategory} の種目を取得中...`);
             const response = await axios.get(`${API_URL}/exercises/${selectedCategory}`, {
@@ -61,7 +60,7 @@ const MeasurePage = () => {
         } catch (err) {
             handleAuthError(err);
         }
-    }, []);
+    }, [handleAuthError]);
 
     useEffect(() => {
         fetchExercises(category);
@@ -136,8 +135,8 @@ const MeasurePage = () => {
         }
     };
 
-    // 📌 今日の筋値データを取得
-    const fetchDailyMuscleValue = async () => {
+    // 📌 今日の筋値データを取得（useCallback でメモ化）
+    const fetchDailyMuscleValue = useCallback(async () => {
         const token = sessionStorage.getItem("token");
 
         try {
@@ -151,11 +150,11 @@ const MeasurePage = () => {
         } catch (err) {
             handleAuthError(err);
         }
-    };
+    }, [handleAuthError]);
 
     useEffect(() => {
         fetchDailyMuscleValue();
-    }, []);
+    }, [fetchDailyMuscleValue]);
 
     return (
         <div className={styles.pageContainer}>
