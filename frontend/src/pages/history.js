@@ -10,8 +10,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import styles from "@/styles/history.module.css";
-import HamburgerMenu from "@/components/HamburgerMenu";
-import useAuth from "@/components/auth";
+import HamburgerMenu from "@/auth/HamburgerMenu";
+import useAuth from "@/auth/auth";
 
 const API_URL = "http://13.231.79.153:5000/api/history";
 
