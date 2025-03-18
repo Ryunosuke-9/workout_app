@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import {
   LineChart,
@@ -13,11 +13,15 @@ import styles from "@/styles/history.module.css";
 import HamburgerMenu from "@/hooks/HamburgerMenu";
 import useAuth from "@/hooks/auth";
 
-const API_URL = "http://13.231.79.153:5000/api/history";
+// APIのURLは環境変数から取得（未設定の場合はデフォルト値）
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://13.231.79.153:5000/api/history";
 
 const HistoryPage = () => {
-  useAuth(); // ✅ 認証チェックを適用
+  // 認証チェック（未ログインの場合は内部でリダイレクト）
+  useAuth();
   const router = useRouter();
+
+  // 各種状態の管理
   const [dailyHistory, setDailyHistory] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [availableDates, setAvailableDates] = useState([]);
@@ -26,52 +30,51 @@ const HistoryPage = () => {
   const [weeklyData, setWeeklyData] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("total_muscle");
 
-  // 📌 トークン取得関数
+  // セッションストレージからトークンを取得する関数
   const getToken = () => sessionStorage.getItem("token");
 
-  // 📌 日付ごとの履歴を取得
+  // 指定日付の履歴データを取得
   const fetchDailyHistory = useCallback(async (dateStr) => {
     try {
       const token = getToken();
       if (!token) throw new Error("トークンが存在しません");
-
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await fetch(`${API_URL}/daily?date=${dateStr}`, { headers });
-
-      if (!res.ok) throw new Error(`データ取得エラー: ${res.status}`);
-      const data = await res.json();
+      const response = await fetch(`${API_URL}/daily?date=${dateStr}`, { headers });
+      if (!response.ok) {
+        throw new Error(`データ取得エラー: ${response.status}`);
+      }
+      const data = await response.json();
       setDailyHistory(data.dailyHistory ?? []);
     } catch (error) {
       console.error("❌ 日付ごとの履歴取得エラー:", error);
     }
   }, []);
 
-  // 📌 初期データ取得
+  // コンポーネント初回レンダリング時に必要なデータを取得
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = getToken();
         if (!token) throw new Error("トークンが存在しません");
-
         const headers = { Authorization: `Bearer ${token}` };
 
-        // ✅ 総負荷量の取得
-        const totalRes = await fetch(`${API_URL}/totals`, { headers });
-        if (!totalRes.ok) throw new Error(`サーバーエラー: ${totalRes.status}`);
-        const totalData = await totalRes.json();
+        // 1. 総負荷量（各部位・全体）の取得
+        const totalResponse = await fetch(`${API_URL}/totals`, { headers });
+        if (!totalResponse.ok) throw new Error(`サーバーエラー: ${totalResponse.status}`);
+        const totalData = await totalResponse.json();
         setCategoryTotals(totalData.categoryTotals ?? []);
         setOverallTotal(totalData.overallTotal ?? 0);
 
-        // ✅ 週ごとのデータ取得
-        const weeklyRes = await fetch(`${API_URL}/weekly`, { headers });
-        if (!weeklyRes.ok) throw new Error(`サーバーエラー: ${weeklyRes.status}`);
-        const weeklyDataResponse = await weeklyRes.json();
-        setWeeklyData(weeklyDataResponse.weeklyData ?? []);
+        // 2. 週ごとのデータ取得
+        const weeklyResponse = await fetch(`${API_URL}/weekly`, { headers });
+        if (!weeklyResponse.ok) throw new Error(`サーバーエラー: ${weeklyResponse.status}`);
+        const weeklyDataJson = await weeklyResponse.json();
+        setWeeklyData(weeklyDataJson.weeklyData ?? []);
 
-        // ✅ 利用可能な日付の取得
-        const datesRes = await fetch(`${API_URL}/dates`, { headers });
-        if (!datesRes.ok) throw new Error(`サーバーエラー: ${datesRes.status}`);
-        const datesData = await datesRes.json();
+        // 3. 利用可能な日付の取得
+        const datesResponse = await fetch(`${API_URL}/dates`, { headers });
+        if (!datesResponse.ok) throw new Error(`サーバーエラー: ${datesResponse.status}`);
+        const datesData = await datesResponse.json();
 
         if (Array.isArray(datesData.dates) && datesData.dates.length > 0) {
           setAvailableDates(datesData.dates);
@@ -83,6 +86,7 @@ const HistoryPage = () => {
         }
       } catch (error) {
         console.error("❌ データ取得エラー:", error);
+        // 認証関連エラーの場合、ログインページへリダイレクト
         if (error.message.includes("403")) {
           router.push("/login");
         }
@@ -92,17 +96,27 @@ const HistoryPage = () => {
     fetchData();
   }, [fetchDailyHistory, router]);
 
-  // 📌 日付変更時の処理
+  // 日付変更時のハンドラー
   const handleDateChange = (e) => {
     const newDate = e.target.value;
     setSelectedDate(newDate);
     fetchDailyHistory(newDate);
   };
 
-  // 📌 表示する最大値を設定
-  const maxYValue = weeklyData.length > 0
+  // 週ごとのグラフ表示用：指定カテゴリの最大値を算出（最低値は100）
+  const maxYValue = weeklyData && weeklyData.length > 0
     ? Math.max(...weeklyData.map((d) => Number(d[selectedCategory]) || 0), 100)
     : 100;
+
+  // 日付文字列を表示用にフォーマットする関数
+  const formatDateForDisplay = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("ja-JP", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   return (
     <div className={styles.pageContainer}>
@@ -154,7 +168,7 @@ const HistoryPage = () => {
           )}
         </div>
         <div className={styles.rightColumn}>
-          <h2>部位と総合の総負荷量負荷量</h2>
+          <h2>部位と総合の総負荷量</h2>
           {categoryTotals.length > 0 ? (
             <table className={styles.summaryTable}>
               <thead>
@@ -171,7 +185,7 @@ const HistoryPage = () => {
                   </tr>
                 ))}
                 <tr className={styles.fixedTotalRow}>
-                  <td>AII</td>
+                  <td>ALL</td>
                   <td>{overallTotal}</td>
                 </tr>
               </tbody>
