@@ -1,303 +1,264 @@
-/* Google Fonts を適用 */
+/* Google Fonts: Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* リセット */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 /* 📌 全体のスタイル */
 .pageContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 120vh;
-    background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
-    font-family: 'Poppins', sans-serif; /* モダンなフォント */
-    color: #333;
-    padding: 0;
-    margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+  min-height: 100vh;
+  color: #e0e0e0;
+  padding: 20px;
 }
 
 /* 📌 ヘッダー */
 .headerContainer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 90%;
-    padding: 15px;
-    background: linear-gradient(90deg, #222, #444);
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 15px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  margin-bottom: 30px;
 }
 
-.headerContainer h1 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #fff;
-    text-transform: uppercase;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+.headerTitle {
+  font-size: 28px;
+  font-weight: 600;
+  color: #f5f5f5;
+  letter-spacing: 1px;
 }
 
-/* 📌 メインのレイアウト */
+/* 📌 メインレイアウト */
 .sectionContainer {
-    display: flex;
-    justify-content: space-between;
-    width: 90%;
-    margin-top: 20px;
-    min-height: 600px;
-    gap: 30px;
+  display: flex;
+  gap: 30px;
+  width: 100%;
 }
 
-/* 📌 左カラムのレイアウト調整 */
+/* 📌 左カラム */
 .leftColumn {
-    width: 60%;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
-/* 📌 上部の部位選択 & 種目登録を横並び */
+/* 📌 上部の部位選択＆種目登録 */
 .topRowContainer {
-    display: flex;
-    justify-content: space-between; /* 横に並べる */
-    gap: 20px; /* ボックスの間隔 */
-    width: 90%;
+  display: flex;
+  gap: 20px;
+  width: 100%;
 }
 
-/* 📌 部位選択フォーム（コンパクト版） */
+/* 📌 共通のボックススタイル */
+.BoxContainer {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+/* 📌 部位選択 */
 .PartRegister {
-    background: linear-gradient(135deg, #2b2b2b, #4b4b4b);
-    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    text-align: center;
-    width: 30%; /* 横幅を半分に */
-    padding: 10px 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.PartRegister h2{
-    color: #f5a623
+.PartRegister h2 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  color: #c1a57b;
 }
 
-/* 📌 部位選択のドロップダウン */
-.PartRegister select {
-    width: 100%;
-    padding: 8px;
-    border-radius: 8px;
-    background: #333;
-    color: #fff;
-    border: 2px solid #555;
-    font-size: 16px;
+.PartDropdown {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  outline: none;
 }
 
-/* 📌 種目登録（横並びに合わせた調整） */
+/* 📌 種目登録 */
 .EventRegister {
-    background: linear-gradient(135deg, #2b2b2b, #4b4b4b);
-    border-radius: 8px;
-    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.2);
-    text-align: center;
-    width: 70%; /* 横幅を半分に */
-    padding: 10px 15px;
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.EventRegister h2{
-    color: #f5a623;
-    padding-top: 0%;
-    padding-top: 0%;
+.EventRegister h2 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  color: #c1a57b;
 }
 
-/* 📌 種目登録の入力フォーム */
 .EventForm {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
+  display: flex;
+  width: 100%;
+  gap: 10px;
 }
 
-/* 📌 入力ボックス */
 .EventInput {
-    flex-grow: 1;
-    padding: 8px;
-    background: #333;
-    border: 2px solid #777;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 16px;
-    text-align: center;
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  font-size: 16px;
+  outline: none;
 }
 
-/* 📌 追加ボタン */
 .EventButton {
-    background: linear-gradient(135deg, #222, #444);
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 8px 15px;
-    border: 2px solid #555;
-    border-radius: 8px;
-    cursor: pointer;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #b08d57, #a0784a);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .EventButton:hover {
-    background: linear-gradient(135deg, #444, #666);
-    border-color: #777;
+  background: linear-gradient(135deg, #a0784a, #8f6a3f);
 }
 
-/* 📌 登録済みの種目コンテナ */
+/* 📌 登録済みの種目一覧 */
 .ExerciseContainer {
-    background: linear-gradient(135deg, #222, #444);
-    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    padding: 20px;
-    width: 90%;
-    text-align: center;
-    color: #f5a623;
-    font-family: 'Poppins', sans-serif;
-    min-height: 700px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
 }
 
-/* 📌 テーブルのスタイル */
 .ExerciseTable {
-    width: 100%;
-    border-collapse: collapse;
-    background: #222;
-    border-radius: 8px;
-    overflow: hidden;
-    table-layout: fixed; /* ✅ 固定幅 */
+  width: 100%;
+  border-collapse: collapse;
 }
 
-/* 📌 ヘッダーのスタイル */
-.ExerciseTable th {
-    background: linear-gradient(135deg, #2b2b2b, #4b4b4b);
-    padding: 12px;
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff;
-    text-transform: uppercase;
-    border-bottom: 2px solid #777;
-    text-align: center;
-}
-
-/* 📌 ヘッダーの幅調整 */
-.ExerciseTable th:nth-child(1) { width: 30%; } /* 種目 */
-.ExerciseTable th:nth-child(2) { width: 15%; } /* 重量 */
-.ExerciseTable th:nth-child(3) { width: 15%; } /* 回数 */
-.ExerciseTable th:nth-child(4) { width: 15%; } /* 記録 */
-.ExerciseTable th:nth-child(5) { width: 15%; } /* 削除 */
-
-/* 📌 データ行のスタイル */
+.ExerciseTable th,
 .ExerciseTable td {
-    border: 1px solid #444;
-    padding: 10px;
-    text-align: center;
-    vertical-align: center;
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.ExerciseTable td.weightColumn, .ExerciseTable td.repsColumn {
-    display: flex;
-    justify-content: center; /* ✅ 水平方向の中央配置 */
-    align-items: center; /* ✅ 垂直方向の中央配置 */
+.ExerciseTable th {
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  color: #c1a57b;
 }
 
-/* 📌 入力フィールドのスタイル */
+.ExerciseTable tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .ExerciseInput {
-    width: 80%;
-    padding: 8px;
-    background: #333;
-    border: 2px solid #777;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 16px;
-    text-align: center;
+  width: 80%;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  text-align: center;
+  outline: none;
 }
 
-/* 📌 ボタンのスタイル */
-.recordButton, .deleteButton {
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: block; /* ✅ 1行に収める */
+/* 📌 記録・削除ボタン */
+.recordButton,
+.deleteButton {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
 }
 
-/* 📌 記録ボタン */
 .recordButton {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: #fff;
+  background: linear-gradient(135deg, #4caf50, #388e3c);
+  color: #fff;
 }
 
 .recordButton:hover {
-    background: linear-gradient(135deg, #0056b3, #003f7f);
+  background: linear-gradient(135deg, #388e3c, #2e7d32);
 }
 
-/* 📌 削除ボタン */
 .deleteButton {
-    background: linear-gradient(135deg, #ff4444, #cc0000);
-    color: #fff;
+  background: linear-gradient(135deg, #e53935, #c62828);
+  color: #fff;
 }
 
 .deleteButton:hover {
-    background: linear-gradient(135deg, #cc0000, #990000);
+  background: linear-gradient(135deg, #c62828, #b71c1c);
 }
 
 /* 📌 右カラム（今日の筋値） */
 .rightColumn {
-    width: 20%;
-    background: linear-gradient(135deg, #222, #444);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2), 0 4px 10px rgba(0, 0, 0, 0.6);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    min-height: 800px;
-    flex-grow: 1;
-    align-items: center;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* 📌 今日の総負荷量タイトル */
 .TodayMuscleValue {
-    font-size: 22px;
-    font-weight: bold;
-    color: #f5a623; /* 🔥 オレンジ色で目立たせる */
-    text-shadow: 2px 2px 6px rgba(255, 165, 0, 0.5); /* ✅ 軽く影を追加 */
-    margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #c1a57b;
+  margin-bottom: 20px;
 }
 
-/* 📌 今日の総負荷量 */
+.totalMuscleValue {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffcc00;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
 .MuscleTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.MuscleTable th, .MuscleTable td {
-    border: 1px solid #666;
-    padding: 10px;
-    text-align: center;
+.MuscleTable th,
+.MuscleTable td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .MuscleTable th {
-    background: #444;
-    color: #ffcc00;
-    font-size: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  color: #c1a57b;
 }
 
-.MuscleTable td {
-    background: #222;
-    color: #fff;
-}
-
-/* 📌 合計筋値の表示 */
-.totalMuscleValue {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ffcc00;
-    text-align: center;
-    margin-bottom: 10px;
+.MuscleTable tr:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
