@@ -7,7 +7,7 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 // **ユーザーIDで検索**
 const findUserByUserId = async (user_id) => { 
-    const [rows] = await db.execute("SELECT user_id, password FROM users WHERE user_id = ?", [user_id]);
+    const [rows] = await db.execute("SELECT id, user_id, password FROM users WHERE user_id = ?", [user_id]);
     return rows.length > 0 ? rows[0] : null;
 };
 
@@ -21,25 +21,25 @@ exports.loginUser = async (req, res) => {
     try {
         const { user_id, password } = req.body;
         if (!user_id || !password) {
-            return res.status(400).json({ error: "すべての項目を入力してください。" });
+            return res.status(400).json({ error: "⚠️ すべての項目を入力してください。" });
         }
 
         const user = await findUserByUserId(user_id);
         if (!user) {
-            return res.status(400).json({ error: "ユーザーIDまたはパスワードが間違っています。" });
+            return res.status(400).json({ error: "⚠️ ユーザーIDまたはパスワードが間違っています。" });
         }
 
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ error: "ユーザーIDまたはパスワードが間違っています。" });
+            return res.status(400).json({ error: "⚠️ ユーザーIDまたはパスワードが間違っています。" });
         }
 
-        // **トークンを 1 日間有効にする**
-        const token = jwt.sign({ user_id: user.user_id }, SECRET_KEY, { expiresIn: "1d" });
+        // ✅ **トークンの有効期限を12時間 (`12h`) に設定**
+        const token = jwt.sign({ user_id: user.user_id }, SECRET_KEY, { expiresIn: "12h" });
 
-        res.status(200).json({ message: "ログイン成功！", token });
+        res.status(200).json({ message: "✅ ログイン成功！", token, user_id: user.user_id });
     } catch (error) {
         console.error("❌ サーバーエラー:", error);
-        res.status(500).json({ error: "サーバーエラー" });
+        res.status(500).json({ error: "❌ サーバーエラーが発生しました" });
     }
 };

@@ -2,9 +2,8 @@ const db = require("../db");
 
 // **利用可能な日付のリストを取得**
 exports.getAvailableDates = async (req, res) => {
-    const user_id = req.user.user_id; // 統一: user_id
+    const user_id = req.user.user_id; // 🔹 user_id に統一
     try {
-        // DATE_FORMAT を使って "YYYY-MM-DD" の文字列として返す
         const [dates] = await db.execute(
             `SELECT DISTINCT DATE_FORMAT(DATE(recorded_at), '%Y-%m-%d') AS date
              FROM muscle_records
@@ -13,14 +12,15 @@ exports.getAvailableDates = async (req, res) => {
         );
         res.json({ dates: dates.map(row => row.date) });
     } catch (err) {
-        console.error("❌ getAvailableDates エラー:", err.message);
+        console.error("❌ 日付取得エラー:", err.message);
         res.status(500).json({ error: "利用可能な日付の取得に失敗しました。" });
     }
 };
 
+// **日ごとの履歴を取得**
 exports.getDailyHistory = async (req, res) => {
-    const user_id = req.user.user_id; // 統一: user_id
-    const { date } = req.query; // ここには "YYYY-MM-DD" の文字列が入るはず
+    const user_id = req.user.user_id;
+    const { date } = req.query;
     if (!date) {
         return res.status(400).json({ error: "日付が指定されていません。" });
     }
@@ -29,22 +29,19 @@ exports.getDailyHistory = async (req, res) => {
             `SELECT e.category, e.name AS exercise, r.weight, r.reps, r.muscle_value
              FROM muscle_records r
              JOIN exercises e ON r.exercise_id = e.id
-             WHERE r.user_id = ? 
-             AND DATE(r.recorded_at) = ?`, 
+             WHERE r.user_id = ? AND DATE(r.recorded_at) = ?`, 
             [user_id, date]
         );
-        if (dailyHistory.length === 0) {
-            console.log(`⚠️ データなし: user_id=${user_id}, date=${date}`);
-        }
         res.json({ dailyHistory });
     } catch (err) {
-        console.error("❌ getDailyHistory エラー:", err.message);
+        console.error("❌ 日ごとの履歴取得エラー:", err.message);
         res.status(500).json({ error: "データの取得に失敗しました。" });
     }
 };
 
+// **部位ごとの総負荷量と全体の合計負荷量を取得**
 exports.getTotalMuscleValue = async (req, res) => {
-    const user_id = req.user.user_id; // 統一: user_id
+    const user_id = req.user.user_id;
     try {
         const [categoryTotals] = await db.execute(
             `SELECT e.category, SUM(r.muscle_value) AS total_muscle_value
@@ -63,13 +60,14 @@ exports.getTotalMuscleValue = async (req, res) => {
             overallTotal: overallTotal[0]?.total_muscle || 0
         });
     } catch (err) {
-        console.error("❌ getTotalMuscleValue エラー:", err.message);
+        console.error("❌ 総負荷量取得エラー:", err.message);
         res.status(500).json({ error: "総負荷量の取得に失敗しました。" });
     }
 };
 
+// **週ごとの筋トレデータを取得**
 exports.getWeeklyData = async (req, res) => {
-    const user_id = req.user.user_id; // 統一: user_id
+    const user_id = req.user.user_id;
     try {
         const [weeklyData] = await db.execute(
             `SELECT YEARWEEK(recorded_at) AS week, 
@@ -105,7 +103,7 @@ exports.getWeeklyData = async (req, res) => {
         });
         res.json({ weeklyData: Object.values(combinedData) });
     } catch (err) {
-        console.error("❌ getWeeklyData エラー:", err.message);
+        console.error("❌ 週ごとのデータ取得エラー:", err.message);
         res.status(500).json({ error: "週ごとのデータ取得に失敗しました。" });
     }
 };

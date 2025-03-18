@@ -14,13 +14,11 @@ const Login = () => {
     e.preventDefault();
 
     if (!user_id || !password) {
-      setMessage("ユーザーIDとパスワードを入力してください。");
+      setMessage("⚠️ ユーザーIDとパスワードを入力してください。");
       return;
     }
 
     try {
-      console.log("ログインリクエスト送信中...", { user_id, password });
-
       const response = await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -30,17 +28,21 @@ const Login = () => {
       });
 
       const data = await response.json();
-      console.log("サーバーからのレスポンス:", data);
+
       if (response.ok) {
-        sessionStorage.setItem("token", data.token);
-        localStorage.setItem("refreshToken", data.token);
-        router.push("/measure"); // ✅ 即座にリダイレクト
+        // ✅ トークンとユーザーIDを `localStorage` に保存
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user_id", data.user_id);
+        console.log("✅ ログイン成功！");
+
+        // ✅ `/measure` にリダイレクト
+        router.push("/measure");
       } else {
-        setMessage(`${data.error || "ログインに失敗しました。"}`);
+        setMessage(`${data.error || "⚠️ ログインに失敗しました。"}`);
       }
     } catch (error) {
-      console.error("ログインエラー:", error);
-      setMessage("サーバーエラーが発生しました。");
+      console.error("🚨 ログインエラー:", error);
+      setMessage("❌ サーバーエラーが発生しました。");
     }
   };
 
@@ -69,15 +71,10 @@ const Login = () => {
           className={styles.input}
           required
         />
-        <button type="submit" className={styles.button}>
-          ログイン
-        </button>
+        <button type="submit" className={styles.button}>ログイン</button>
       </form>
       {message && <p className={styles.message}>{message}</p>}
-
-      <button onClick={handleGoToRegister} className={styles.RegisterButton}>
-        新規登録ページへ
-      </button>
+      <button onClick={handleGoToRegister} className={styles.RegisterButton}>新規登録ページへ</button>
     </div>
   );
 };

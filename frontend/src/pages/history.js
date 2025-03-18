@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import {
   LineChart,
@@ -10,8 +10,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import styles from "@/styles/history.module.css";
-import HamburgerMenu from "@/hooks/HamburgerMenu";
-import useAuth from "@/hooks/Auth";
+import HamburgerMenu from "@/components/HamburgerMenu";
+import useAuth from "@/components/auth";
 
 const API_URL = "http://13.231.79.153:5000/api/history";
 
@@ -26,81 +26,83 @@ const HistoryPage = () => {
   const [weeklyData, setWeeklyData] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("total_muscle");
 
+  // 📌 トークン取得関数
+  const getToken = () => sessionStorage.getItem("token");
+
+  // 📌 日付ごとの履歴を取得
+  const fetchDailyHistory = useCallback(async (dateStr) => {
+    try {
+      const token = getToken();
+      if (!token) throw new Error("トークンが存在しません");
+
+      const headers = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`${API_URL}/daily?date=${dateStr}`, { headers });
+
+      if (!res.ok) throw new Error(`データ取得エラー: ${res.status}`);
+      const data = await res.json();
+      setDailyHistory(data.dailyHistory ?? []);
+    } catch (error) {
+      console.error("❌ 日付ごとの履歴取得エラー:", error);
+    }
+  }, []);
+
+  // 📌 初期データ取得
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = sessionStorage.getItem("token");
-        if (!token) throw new Error("No token");
+        const token = getToken();
+        if (!token) throw new Error("トークンが存在しません");
+
         const headers = { Authorization: `Bearer ${token}` };
 
+        // ✅ 総負荷量の取得
         const totalRes = await fetch(`${API_URL}/totals`, { headers });
-        if (!totalRes.ok) throw new Error(`Server error: ${totalRes.status}`);
+        if (!totalRes.ok) throw new Error(`サーバーエラー: ${totalRes.status}`);
         const totalData = await totalRes.json();
         setCategoryTotals(totalData.categoryTotals ?? []);
         setOverallTotal(totalData.overallTotal ?? 0);
 
+        // ✅ 週ごとのデータ取得
         const weeklyRes = await fetch(`${API_URL}/weekly`, { headers });
-        if (!weeklyRes.ok) throw new Error(`Server error: ${weeklyRes.status}`);
+        if (!weeklyRes.ok) throw new Error(`サーバーエラー: ${weeklyRes.status}`);
         const weeklyDataResponse = await weeklyRes.json();
         setWeeklyData(weeklyDataResponse.weeklyData ?? []);
 
+        // ✅ 利用可能な日付の取得
         const datesRes = await fetch(`${API_URL}/dates`, { headers });
-        if (!datesRes.ok) throw new Error(`Server error: ${datesRes.status}`);
+        if (!datesRes.ok) throw new Error(`サーバーエラー: ${datesRes.status}`);
         const datesData = await datesRes.json();
-        if (!datesData || !Array.isArray(datesData.dates)) {
-          console.error("Invalid datesData:", datesData);
-          setAvailableDates([]);
-        } else {
+
+        if (Array.isArray(datesData.dates) && datesData.dates.length > 0) {
           setAvailableDates(datesData.dates);
-          if (datesData.dates.length > 0) {
-            const initialDate = datesData.dates[0];
-            setSelectedDate(initialDate);
-            fetchDailyHistory(initialDate);
-          }
+          const initialDate = datesData.dates[0];
+          setSelectedDate(initialDate);
+          fetchDailyHistory(initialDate);
+        } else {
+          setAvailableDates([]);
         }
       } catch (error) {
-        console.error("API error:", error);
+        console.error("❌ データ取得エラー:", error);
         if (error.message.includes("403")) {
           router.push("/login");
         }
       }
     };
+
     fetchData();
-  }, []);
+  }, [fetchDailyHistory, router]);
 
-  const fetchDailyHistory = async (dateStr) => {
-    try {
-      const token = sessionStorage.getItem("token");
-      if (!token) {
-        console.error("No token");
-        return;
-      }
-      const headers = { Authorization: `Bearer ${token}` };
-      const res = await fetch(`${API_URL}/daily?date=${dateStr}`, { headers });
-      if (!res.ok) {
-        console.error(`Error ${res.status}:`, await res.text());
-        setDailyHistory([]);
-        return;
-      }
-      const data = await res.json();
-      setDailyHistory(data.dailyHistory ?? []);
-    } catch (error) {
-      console.error("Data fetch error:", error);
-    }
-  };
-
+  // 📌 日付変更時の処理
   const handleDateChange = (e) => {
     const newDate = e.target.value;
     setSelectedDate(newDate);
     fetchDailyHistory(newDate);
   };
 
-  const formatDateForDisplay = (dateStr) => dateStr.replace(/-/g, "/");
-
-  const maxYValue =
-    weeklyData.length > 0
-      ? Math.max(...weeklyData.map((d) => Number(d[selectedCategory]) || 0), 100)
-      : 100;
+  // 📌 表示する最大値を設定
+  const maxYValue = weeklyData.length > 0
+    ? Math.max(...weeklyData.map((d) => Number(d[selectedCategory]) || 0), 100)
+    : 100;
 
   return (
     <div className={styles.pageContainer}>

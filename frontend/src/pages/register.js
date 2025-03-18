@@ -12,6 +12,7 @@ const Register = () => {
   const [message, setMessage] = useState("");
   const [tooltip, setTooltip] = useState({ userId: false, password: false });
 
+  // ✅ ツールチップのトグル
   const toggleTooltip = (field) => {
     setTooltip((prev) => ({
       ...prev,
@@ -19,21 +20,35 @@ const Register = () => {
     }));
   };
 
+  // ✅ フォーム送信時の処理
   const handleRegister = async (e) => {
     e.preventDefault();
 
     if (!user_id || !password || !confirm_password) {
-      setMessage("すべての項目を入力してください");
+      setMessage("⚠️ すべての項目を入力してください。");
       return;
     }
 
     if (password !== confirm_password) {
-      setMessage("パスワードが一致しません");
+      setMessage("⚠️ パスワードが一致しません。");
+      return;
+    }
+
+    // ✅ クライアント側のバリデーション
+    const user_idRegex = /^[A-Za-z0-9]{5,}$/;
+    if (!user_idRegex.test(user_id)) {
+      setMessage("⚠️ ユーザーIDは5文字以上の英数字のみで入力してください。");
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setMessage("⚠️ パスワードは8文字以上で、大文字・小文字・数字をそれぞれ1文字以上含めてください。");
       return;
     }
 
     try {
-      const response = await fetch(API_URL, {  // 修正: API_BASE_URL → API_URL
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,16 +59,20 @@ const Register = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage("登録成功！ログインしてください");
+        setMessage("✅ 登録成功！ログインしてください。");
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000); // ✅ 2秒後にログインページへ移動
       } else {
-        setMessage(`${data.error || "登録に失敗しました"}`);
+        setMessage(`${data.error || "❌ 登録に失敗しました。"}`);
       }
     } catch (error) {
-      console.error("エラー:", error);
-      setMessage("サーバーエラーが発生しました");
+      console.error("❌ エラー:", error);
+      setMessage("❌ サーバーエラーが発生しました。");
     }
   };
 
+  // ✅ ログインページへ遷移
   const handleGoToLogin = () => {
     router.push("/login");
   };
@@ -77,7 +96,7 @@ const Register = () => {
             className={styles["question-mark"]}
             onClick={() => toggleTooltip("userId")}
           >
-            ?
+            ❓
           </span>
           {tooltip.userId && (
             <span className={styles.tooltip}>
@@ -100,11 +119,11 @@ const Register = () => {
             className={styles["question-mark"]}
             onClick={() => toggleTooltip("password")}
           >
-            ?
+            ❓
           </span>
           {tooltip.password && (
             <span className={styles.tooltip}>
-              パスワードは8文字以上で、大文字・小文字・数字をそれぞれ1文字以上含めて入力してください。
+              パスワードは8文字以上で、大文字・小文字・数字をそれぞれ1文字以上含めてください。
             </span>
           )}
         </div>
@@ -125,6 +144,7 @@ const Register = () => {
           登録
         </button>
       </form>
+
       {message && <p className={styles.message}>{message}</p>}
 
       <button onClick={handleGoToLogin} className={styles.LoginButton}>

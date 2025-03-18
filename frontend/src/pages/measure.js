@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import styles from "@/styles/measure.module.css";
-import HamburgerMenu from "@/hooks/HamburgerMenu";
-import useAuth from "@/hooks/Auth";
+import HamburgerMenu from "@/components/HamburgerMenu";
+import useAuth from "@/components/auth";
 
 const API_URL = "http://13.231.79.153:5000/api/measure";
 
@@ -19,26 +19,29 @@ const MeasurePage = () => {
     const [totalMuscleValue, setTotalMuscleValue] = useState(0);
     const [dailyRecords, setDailyRecords] = useState([]);
 
+    // 📌 入力値の変更処理
     const handleInputChange = (event, exercise_id, field) => {
         if (!event || !event.target) {
-            console.error("❌ handleInputChange: event または event.target が undefined です", { event, exercise_id, field });
+            console.error("❌ 入力エラー:", { event, exercise_id, field });
             return;
         }
 
         const { value } = event.target;
+        if (field === "weight" || field === "reps") {
+            if (value < 0 || isNaN(value)) return;
+        }
+
         setExerciseData((prevData) => ({
             ...prevData,
             [exercise_id]: { ...prevData[exercise_id], [field]: value },
         }));
     };
 
-    // 📌 部位ごとの種目を取得
+    // 📌 種目取得
     const fetchExercises = async (selectedCategory) => {
         const token = sessionStorage.getItem("token");
         if (!token) {
-            console.error("❌ トークンがありません。ログインしてください。");
-            setMessage("⚠️ ログインが必要です。");
-            setTimeout(() => router.push("/login"), 2000);
+            handleAuthError({ response: { status: 403 } });
             return;
         }
 
@@ -47,7 +50,6 @@ const MeasurePage = () => {
             const response = await axios.get(`${API_URL}/exercises/${selectedCategory}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            console.log("📊 取得した種目:", response.data);
             setExercises(response.data);
         } catch (err) {
             handleAuthError(err);
@@ -56,23 +58,15 @@ const MeasurePage = () => {
 
     // 📌 認証エラー時の処理
     const handleAuthError = (error) => {
-        if (error.response) {
-            if (error.response.status === 403) {
-                console.error("🚨 認証エラー: トークンが無効または期限切れです。");
-                sessionStorage.removeItem("token");
-                localStorage.removeItem("refreshToken");
-                setMessage("⚠️ セッションが切れました。再ログインしてください。");
-                setTimeout(() => router.push("/login"), 2000);
-            } else if (error.response.status === 404) {
-                console.error("❌ データなし: 今日の記録がありません");
-                setMessage("⚠️ 今日はまだトレーニングを記録していません。");
-            } else {
-                console.error("❌ APIエラー:", error.response.data);
-                setMessage("⚠️ サーバーエラーが発生しました。");
-            }
+        if (error.response?.status === 403) {
+            console.error("🚨 認証エラー: トークンが無効または期限切れです。");
+            sessionStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            setMessage("⚠️ セッションが切れました。再ログインしてください。");
+            setTimeout(() => router.push("/login"), 1000);
         } else {
-            console.error("❌ ネットワークエラー:", error);
-            setMessage("⚠️ ネットワークエラーが発生しました。");
+            console.error("❌ APIエラー:", error);
+            setMessage("⚠️ サーバーエラーが発生しました。");
         }
     };
 
@@ -83,15 +77,10 @@ const MeasurePage = () => {
     // 📌 新しい種目を追加
     const handleAddExercise = async () => {
         if (!exerciseName.trim()) return;
-        if (!["chest", "back", "legs", "shoulders", "arms"].includes(category)) {
-            setMessage("⚠️ 無効なカテゴリです！");
-            return;
-        }
 
         const token = sessionStorage.getItem("token");
         try {
             console.log("📡 新しい種目を追加:", { exerciseName, category });
-
             await axios.post(
                 `${API_URL}/exercises`,
                 { name: exerciseName, category },
@@ -107,7 +96,6 @@ const MeasurePage = () => {
     // 📌 種目削除
     const handleDelete = async (exercise_id) => {
         const token = sessionStorage.getItem("token");
-
         try {
             console.log("📡 種目を削除:", exercise_id);
             await axios.delete(`${API_URL}/${exercise_id}`, {
@@ -120,7 +108,7 @@ const MeasurePage = () => {
         }
     };
 
-    // 📌 筋トレ記録 API
+    // 📌 筋トレ記録
     const handleSubmit = async (exercise_id) => {
         const { weight, reps } = exerciseData[exercise_id] || {};
         if (!weight || !reps) {
@@ -165,11 +153,8 @@ const MeasurePage = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            if (response.status === 200) {
-                console.log("📊 取得したデータ:", response.data);
-                setDailyRecords(response.data.records || []);
-                setTotalMuscleValue(response.data.totalMuscleValue || 0);
-            }
+            setDailyRecords(response.data.records || []);
+            setTotalMuscleValue(response.data.totalMuscleValue || 0);
         } catch (err) {
             handleAuthError(err);
         }

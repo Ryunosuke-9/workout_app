@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { jwtDecode } from "jwt-decode"; // ✅ 修正
+import { jwtDecode } from "jwt-decode";
 
 const useAuth = () => {
   const router = useRouter();
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token"); // ✅ `sessionStorage` → `localStorage` に変更（12時間保持のため）
       if (!token) {
         router.push("/login");
         return;
@@ -16,26 +16,27 @@ const useAuth = () => {
       try {
         const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000;
+        const timeUntilExpiration = decoded.exp - currentTime;
 
-        if (decoded.exp < currentTime) {
+        if (timeUntilExpiration <= 0) {
           console.warn("🔴 トークン期限切れ - ログアウト処理実行");
-          sessionStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user_id");
           router.push("/login");
+        } else {
+          console.log(`🟢 トークン有効: ${Math.round(timeUntilExpiration / 60)}分後に再チェック`);
+          setTimeout(() => checkAuth(), timeUntilExpiration * 1000);
         }
       } catch (error) {
         console.error("❌ トークンデコードエラー:", error);
-        sessionStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_id");
         router.push("/login");
       }
     };
 
-    // **1秒ごとにチェック**
-    const interval = setInterval(checkAuth, 1000);
-    
-    return () => clearInterval(interval); // ✅ クリーンアップ
+    checkAuth(); // 初回実行
   }, [router]);
 };
 
-export default useAuth; // ✅ 修正なしでOK
+export default useAuth;
