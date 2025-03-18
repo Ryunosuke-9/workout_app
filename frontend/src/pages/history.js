@@ -14,7 +14,7 @@ import HamburgerMenu from "@/hooks/HamburgerMenu";
 import useAuth from "@/hooks/auth";
 
 // APIのURLは環境変数から取得（未設定の場合はデフォルト値）
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://13.231.79.153:5000/api/history";
+const API_URL = "http://13.231.79.153:5000/api/history";
 
 const HistoryPage = () => {
   // 認証チェック（未ログインの場合は内部でリダイレクト）
