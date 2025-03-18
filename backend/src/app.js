@@ -1,6 +1,6 @@
 const express = require("express");
 require("dotenv").config();
-const { applyMiddlewares } = require("./middleware"); // ✅ 共通ミドルウェア
+const { applyMiddlewares } = require("./middleware/apply"); // ✅ 共通ミドルウェア
 const { authenticateToken } = require("./middleware/auth"); // ✅ 認証ミドルウェア
 
 const app = express();

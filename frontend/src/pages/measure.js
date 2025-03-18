@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import styles from "@/styles/measure.module.css";
-import HamburgerMenu from "@/hooks/HamburgerMenu";
+import HamburgerMenu from "@/components/HamburgerMenu";
 import useAuth from "@/hooks/auth";
 
 // API URLは環境変数から取得（未設定の場合はデフォルト値）

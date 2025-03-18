@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import styles from "@/styles/history.module.css";
-import HamburgerMenu from "@/hooks/HamburgerMenu";
+import HamburgerMenu from "@/components/HamburgerMenu";
 import useAuth from "@/hooks/auth";
 
 // APIのURLは環境変数から取得（未設定の場合はデフォルト値）
