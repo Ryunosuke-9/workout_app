@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import jwt_decode from "jwt-decode";
+import jwtDecode from "jwt-decode"; // インポート修正
 
 const useAuth = () => {
   const router = useRouter();
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem("token");
+      let token = localStorage.getItem("token");
       console.log("[AuthHook] Retrieved token:", token);
 
       if (!token) {
@@ -16,8 +16,11 @@ const useAuth = () => {
         return;
       }
 
+      // トークンが "Bearer xxxxx" の形式の場合、プレフィックスを削除
+      token = token.startsWith("Bearer ") ? token.split(" ")[1] : token;
+
       try {
-        const decoded = jwt_decode(token);
+        const decoded = jwtDecode(token); // 修正
         console.log("[AuthHook] Decoded token payload:", decoded);
 
         const currentTime = Date.now() / 1000;
