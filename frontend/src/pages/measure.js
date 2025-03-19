@@ -28,8 +28,8 @@ const MeasurePage = () => {
     (error) => {
       if (error.response?.status === 403) {
         console.error("🚨 認証エラー: トークン無効");
-        sessionStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_id");
         setMessage("⚠️ セッションが切れました。再ログインしてください。");
         setTimeout(() => router.push("/login"), 1000);
       } else {
@@ -54,7 +54,7 @@ const MeasurePage = () => {
   // 選択された部位の種目一覧を取得（useCallbackでメモ化）
   const fetchExercises = useCallback(
     async (selectedCategory) => {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         handleAuthError({ response: { status: 403 } });
         return;
@@ -80,7 +80,7 @@ const MeasurePage = () => {
   // 新しい種目を追加
   const handleAddExercise = async () => {
     if (!exerciseName.trim()) return;
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     try {
       console.log("📡 新しい種目を追加:", { exerciseName, category });
       await axios.post(
@@ -97,7 +97,7 @@ const MeasurePage = () => {
 
   // 種目を削除
   const handleDelete = async (exercise_id) => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     try {
       console.log("📡 種目を削除:", exercise_id);
       await axios.delete(`${API_URL}/${exercise_id}`, {
@@ -117,7 +117,7 @@ const MeasurePage = () => {
       setMessage("⚠️ 重量と回数を入力してください！");
       return;
     }
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     setIsLoading(true);
     setMessage("");
     try {
@@ -143,7 +143,7 @@ const MeasurePage = () => {
 
   // 今日の筋値データを取得（useCallbackでメモ化）
   const fetchDailyMuscleValue = useCallback(async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     try {
       console.log("📡 今日の筋値データを取得中...");
       const response = await axios.get(`${API_URL}/daily-muscle-summary`, {
