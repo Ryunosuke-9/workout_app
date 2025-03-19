@@ -11,12 +11,16 @@ if (!SECRET_KEY) {
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
+    console.log("🔍 [Middleware] Authorization Header:", authHeader);
+
     const token = authHeader && authHeader.split(" ")[1];
 
     if (!token) {
         console.error("❌ 認証エラー: トークンがありません");
         return res.status(401).json({ error: "⚠️ 認証トークンがありません。" });
     }
+
+    console.log("🔍 [Middleware] Extracted Token:", token);
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) {
@@ -31,5 +35,6 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
 
 module.exports = { authenticateToken };
