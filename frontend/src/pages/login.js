@@ -19,36 +19,37 @@ const Login = () => {
     }
 
     try {
+      console.log("[Login] Sending POST", { user_id, password });
       const response = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id, password }),
       });
 
+      console.log("[Login] Response status:", response.status);
       const data = await response.json();
+      console.log("[Login] Response body:", data);
 
       if (response.ok) {
-        // ✅ トークンとユーザーIDを `localStorage` に保存
+        // トークン形式チェック
+        const tokenParts = data.token?.split(".");
+        console.log("[Login] Token format valid:", tokenParts?.length === 3);
+
         localStorage.setItem("token", data.token);
         localStorage.setItem("user_id", data.user_id);
-        console.log("✅ ログイン成功！");
+        console.log("[Login] Saved token to localStorage");
 
-        // ✅ `/measure` にリダイレクト
         router.push("/measure");
       } else {
-        setMessage(`${data.error || "⚠️ ログインに失敗しました。"}`);
+        setMessage(data.error || "⚠️ ログインに失敗しました。");
       }
     } catch (error) {
-      console.error("🚨 ログインエラー:", error);
+      console.error("[Login] Network/server error:", error);
       setMessage("❌ サーバーエラーが発生しました。");
     }
   };
 
-  const handleGoToRegister = () => {
-    router.push("/register");
-  };
+  const handleGoToRegister = () => router.push("/register");
 
   return (
     <div className={styles.container}>
@@ -74,7 +75,9 @@ const Login = () => {
         <button type="submit" className={styles.button}>ログイン</button>
       </form>
       {message && <p className={styles.message}>{message}</p>}
-      <button onClick={handleGoToRegister} className={styles.RegisterButton}>新規登録ページへ</button>
+      <button onClick={handleGoToRegister} className={styles.RegisterButton}>
+        新規登録ページへ
+      </button>
     </div>
   );
 };

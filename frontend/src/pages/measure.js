@@ -6,7 +6,7 @@ import HamburgerMenu from "@/components/HamburgerMenu";
 import useAuth from "@/hooks/auth";
 
 // API URLは環境変数から取得（未設定の場合はデフォルト値）
-const API_URL = "http://18.183.224.238/api/measure";
+const API_URL = "http://18.183.224.238:5000/api/measure";
 
 const MeasurePage = () => {
   // 認証チェック（未ログイン時は内部でリダイレクト）
