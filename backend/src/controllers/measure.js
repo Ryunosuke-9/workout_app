@@ -47,20 +47,29 @@ exports.addExercise = async (req, res) => {
 // **種目削除**
 exports.deleteExercise = async (req, res) => {
     const user_id = req.user.user_id;
+    // パラメータ名は exercise_id に統一
     const { exercise_id } = req.params;
 
     try {
-        console.log("📡 種目削除: ユーザーID", user_id, "種目ID:", exercise_id);
+        console.log("📡 種目削除リクエスト: ユーザーID", user_id, "種目ID:", exercise_id);
 
-        await db.query(
+        // muscle_records から削除
+        const [result1] = await db.query(
             "DELETE FROM muscle_records WHERE user_id = ? AND exercise_id = ?",
             [user_id, exercise_id]
         );
+        console.log("muscle_records 削除件数:", result1.affectedRows);
 
-        await db.query(
+        // exercises から削除
+        const [result2] = await db.query(
             "DELETE FROM exercises WHERE user_id = ? AND id = ?",
             [user_id, exercise_id]
         );
+        console.log("exercises 削除件数:", result2.affectedRows);
+
+        if (result2.affectedRows === 0) {
+            return res.status(404).json({ error: "⚠️ 該当する種目が見つかりませんでした。" });
+        }
 
         res.json({ message: "✅ 種目を削除しました！" });
     } catch (err) {

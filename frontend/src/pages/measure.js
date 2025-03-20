@@ -43,7 +43,6 @@ const MeasurePage = () => {
   // 入力値変更時の処理
   const handleInputChange = (event, exercise_id, field) => {
     const { value } = event.target;
-    // 空文字、NaN、または負の値は更新しない
     if (value === "" || isNaN(value) || Number(value) < 0) return;
     setExerciseData((prev) => ({
       ...prev,
@@ -51,7 +50,7 @@ const MeasurePage = () => {
     }));
   };
 
-  // 選択された部位の種目一覧を取得（useCallbackでメモ化）
+  // 部位変更時に種目一覧を取得
   const fetchExercises = useCallback(
     async (selectedCategory) => {
       const token = localStorage.getItem("token");
@@ -61,9 +60,10 @@ const MeasurePage = () => {
       }
       try {
         console.log(`📡 ${selectedCategory} の種目を取得中...`);
-        const response = await axios.get(`${API_URL}/exercises/${selectedCategory}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          `${API_URL}/exercises/${selectedCategory}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         setExercises(response.data);
       } catch (err) {
         handleAuthError(err);
@@ -72,7 +72,6 @@ const MeasurePage = () => {
     [handleAuthError]
   );
 
-  // 部位変更時に種目一覧を再取得
   useEffect(() => {
     fetchExercises(category);
   }, [category, fetchExercises]);
@@ -95,7 +94,7 @@ const MeasurePage = () => {
     }
   };
 
-  // 種目を削除
+  // 種目を削除（パラメータ名は exercise_id に統一）
   const handleDelete = async (exercise_id) => {
     const token = localStorage.getItem("token");
     try {
@@ -106,6 +105,7 @@ const MeasurePage = () => {
       setMessage("✅ 種目を削除しました！");
       fetchExercises(category);
     } catch (err) {
+      console.error("❌ 削除エラー:", err.response?.data || err);
       handleAuthError(err);
     }
   };
@@ -128,7 +128,6 @@ const MeasurePage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessage("✅ 記録しました！💪");
-      // 入力欄をリセット
       setExerciseData((prev) => ({
         ...prev,
         [exercise_id]: { weight: "", reps: "" },
@@ -141,7 +140,7 @@ const MeasurePage = () => {
     }
   };
 
-  // 今日の筋値データを取得（useCallbackでメモ化）
+  // 今日の筋値データを取得
   const fetchDailyMuscleValue = useCallback(async () => {
     const token = localStorage.getItem("token");
     try {
@@ -266,11 +265,9 @@ const MeasurePage = () => {
         {/* 右カラム（今日の筋値） */}
         <div className={styles.rightColumn}>
           <h2 className={styles.TodayMuscleValue}>今日の総負荷量</h2>
-          {/* 合計筋値の表示 */}
           <p className={styles.totalMuscleValue}>
-            合計筋値: <span>{totalMuscleValue}</span> 筋値
+            総負荷量: <span>{totalMuscleValue}</span> kg
           </p>
-          {/* 今日の記録テーブル */}
           <table className={styles.MuscleTable}>
             <thead>
               <tr>
