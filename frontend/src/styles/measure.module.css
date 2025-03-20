@@ -30,6 +30,19 @@
   letter-spacing: 1px;
 }
 
+/* 📌 ハンバーガーメニュー */
+.hamburgerMenu {
+  position: absolute;
+  top: 60px; /* ヘッダーの下に配置 */
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000; /* 右カラムより上に表示 */
+}
+
 /* 📌 メインレイアウト */
 .sectionContainer {
   display: flex;
@@ -37,9 +50,10 @@
   width: 100%;
 }
 
-/* 📌 左カラム */
-.leftColumn {
-  flex: 3;
+/* 📌 左右のカラムの比率を均等に */
+.leftColumn,
+.rightColumn {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 30px;
@@ -206,17 +220,13 @@
   background: linear-gradient(135deg, #c62828, #b71c1c);
 }
 
-/* 📌 右カラム（今日の筋値） */
+/* 📌 右カラム */
 .rightColumn {
-  flex: 1;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(8px);
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .TodayMuscleValue {
