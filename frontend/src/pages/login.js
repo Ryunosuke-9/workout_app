@@ -31,15 +31,25 @@ const Login = () => {
       console.log("[Login] Response body:", data);
 
       if (response.ok) {
-        // トークン形式チェック
+        // ✅ トークンの形式を詳細にチェック
         const tokenParts = data.token?.split(".");
+        console.log("[Login] Token received:", data.token);
         console.log("[Login] Token format valid:", tokenParts?.length === 3);
 
+        // ✅ `localStorage` へ保存
         localStorage.setItem("token", data.token);
         localStorage.setItem("user_id", data.user_id);
-        console.log("[Login] Saved token to localStorage");
+        console.log("[Login] Token successfully saved to localStorage");
 
-        router.push("/measure");
+        // ✅ 保存後すぐに取得して確認
+        const storedToken = localStorage.getItem("token");
+        console.log("[Login] Retrieved token from localStorage:", storedToken);
+
+        // ✅ 保存完了後にページ遷移（遷移が早すぎると `localStorage` に保存されないことがある）
+        setTimeout(() => {
+          console.log("[Login] Redirecting to /measure");
+          router.push("/measure");
+        }, 500);
       } else {
         setMessage(data.error || "⚠️ ログインに失敗しました。");
       }
