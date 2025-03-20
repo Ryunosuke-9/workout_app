@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import jwtDecode from "jwt-decode"; // ✅ 修正
+import { jwtDecode } from "jwt-decode"; // ✅ これを試す
 
 const useAuth = () => {
   const router = useRouter();
