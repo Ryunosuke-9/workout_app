@@ -16,11 +16,9 @@ import useAuth from "@/hooks/auth";
 const API_URL = "http://18.183.224.238:5000/api/history";
 
 const HistoryPage = () => {
-  // 未ログイン時は useAuth() で自動リダイレクト
   useAuth();
   const router = useRouter();
 
-  // 状態管理
   const [dailyHistory, setDailyHistory] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [availableDates, setAvailableDates] = useState([]);
@@ -30,10 +28,8 @@ const HistoryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("total_muscle");
   const [message, setMessage] = useState("");
 
-  // localStorage からトークンを取得する関数
   const getToken = () => localStorage.getItem("token");
 
-  // 認証エラー・データ取得エラーのハンドリング
   const handleAuthError = useCallback(
     (error) => {
       console.error("❌ 認証/データ取得エラー:", error);
@@ -50,7 +46,6 @@ const HistoryPage = () => {
     [router]
   );
 
-  // 指定日の履歴データ取得
   const fetchDailyHistory = useCallback(async (dateStr) => {
     try {
       const token = getToken();
@@ -70,7 +65,6 @@ const HistoryPage = () => {
     }
   }, [handleAuthError]);
 
-  // コンポーネント初回レンダリング時に各種データを取得
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -78,25 +72,20 @@ const HistoryPage = () => {
         if (!token) throw new Error("トークンが存在しません");
         const headers = { Authorization: `Bearer ${token}` };
 
-        // 1. 総負荷量（各部位・全体）の取得
         const totalResponse = await fetch(`${API_URL}/totals`, { headers });
-        if (!totalResponse.ok)
-          throw new Error(`サーバーエラー: ${totalResponse.status}`);
+        if (!totalResponse.ok) throw new Error(`サーバーエラー: ${totalResponse.status}`);
         const totalData = await totalResponse.json();
         setCategoryTotals(totalData.categoryTotals ?? []);
         setOverallTotal(totalData.overallTotal ?? 0);
 
-        // 2. 週ごとのデータ取得
         const weeklyResponse = await fetch(`${API_URL}/weekly`, { headers });
-        if (!weeklyResponse.ok)
-          throw new Error(`サーバーエラー: ${weeklyResponse.status}`);
+        if (!weeklyResponse.ok) throw new Error(`サーバーエラー: ${weeklyResponse.status}`);
         const weeklyDataJson = await weeklyResponse.json();
+        console.log("🚀 WEEKLY API RESPONSE:", weeklyDataJson);
         setWeeklyData(weeklyDataJson.weeklyData ?? []);
 
-        // 3. 利用可能な日付の取得
         const datesResponse = await fetch(`${API_URL}/dates`, { headers });
-        if (!datesResponse.ok)
-          throw new Error(`サーバーエラー: ${datesResponse.status}`);
+        if (!datesResponse.ok) throw new Error(`サーバーエラー: ${datesResponse.status}`);
         const datesData = await datesResponse.json();
         if (Array.isArray(datesData.dates) && datesData.dates.length > 0) {
           setAvailableDates(datesData.dates);
@@ -115,20 +104,17 @@ const HistoryPage = () => {
     fetchData();
   }, [fetchDailyHistory, handleAuthError, router]);
 
-  // 日付変更時のハンドラー
   const handleDateChange = (e) => {
     const newDate = e.target.value;
     setSelectedDate(newDate);
     fetchDailyHistory(newDate);
   };
 
-  // 週ごとのグラフ表示用：指定カテゴリの最大値を算出（最低値は100）
   const maxYValue =
     weeklyData && weeklyData.length > 0
       ? Math.max(...weeklyData.map((d) => Number(d[selectedCategory]) || 0), 100)
       : 100;
 
-  // 日付を表示用にフォーマットする関数
   const formatDateForDisplay = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("ja-JP", {
@@ -141,13 +127,14 @@ const HistoryPage = () => {
   return (
     <div className={styles.pageContainer}>
       <div className={styles.headerContainer}>
-        <h1 className={styles.pageTitle}>計測履歴</h1>
+        <h1 className={styles.headerTitle}>計測履歴</h1>
         <HamburgerMenu />
       </div>
-      <div className={styles.contentContainer}>
+
+      <div className={styles.columnsContainer}>
         <div className={styles.leftColumn}>
           <div className={styles.historyHeader}>
-            <h2>日付ごとの履歴</h2>
+            <h2 className={styles.historyTitle}>日付ごとの履歴</h2>
             <select
               className={styles.dateSelect}
               onChange={handleDateChange}
@@ -187,6 +174,7 @@ const HistoryPage = () => {
             <p className={styles.noDataMessage}>この日には記録がありません。</p>
           )}
         </div>
+
         <div className={styles.rightColumn}>
           <h2>部位と総合の総負荷量</h2>
           {categoryTotals.length > 0 ? (
@@ -215,32 +203,44 @@ const HistoryPage = () => {
           )}
         </div>
       </div>
-      <h2>週ごとの筋値推移</h2>
-      <label className={styles.graphSelectLabel}>
-        表示するデータ:
-        <select
-          className={styles.graphSelect}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          value={selectedCategory}
-        >
-          <option value="total_muscle">総合筋値</option>
-          <option value="chest">胸</option>
-          <option value="back">背中</option>
-          <option value="legs">足</option>
-          <option value="arms">腕</option>
-          <option value="shoulders">肩</option>
-        </select>
-      </label>
-      <ResponsiveContainer width="90%" height={500}>
-        <LineChart data={weeklyData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="week" />
-          <YAxis domain={[0, maxYValue]} />
-          <Tooltip />
-          <Line type="monotone" dataKey={selectedCategory} stroke="#ffcc00" strokeWidth={2} />
-        </LineChart>
-      </ResponsiveContainer>
-      {message && <p className={styles.message}>{message}</p>}
+
+      <div className={styles.graphContainer}>
+        <h2>週ごとの筋値推移</h2>
+        <label className={styles.graphSelectLabel}>
+          表示するデータ:
+          <select
+            className={styles.graphSelect}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            value={selectedCategory}
+          >
+            <option value="total_muscle">総合筋値</option>
+            <option value="chest">胸</option>
+            <option value="back">背中</option>
+            <option value="legs">足</option>
+            <option value="arms">腕</option>
+            <option value="shoulders">肩</option>
+          </select>
+        </label>
+        <ResponsiveContainer width="90%" height={500}>
+          <LineChart data={weeklyData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="week"
+              tickFormatter={(weekNum) => {
+                const week = String(weekNum % 100).padStart(2, '0'); 
+                return `W${week}`;
+              }}
+            />
+            <YAxis domain={[0, maxYValue]} />
+            <Tooltip 
+              wrapperStyle={{ pointerEvents: "auto" }} // ツールチップの動作をスムーズに
+              contentStyle={{ backgroundColor: "var(--tooltip-bg)", color: "var(--tooltip-text)", border: "1px solid var(--tooltip-border)" }} 
+            />
+            <Line type="monotone" dataKey={selectedCategory} stroke="#ffcc00" strokeWidth={2} />
+          </LineChart>
+        </ResponsiveContainer>
+        {message && <p className={styles.message}>{message}</p>}
+      </div>
     </div>
   );
 };

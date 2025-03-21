@@ -2,7 +2,7 @@ const db = require("../db");
 
 // **利用可能な日付のリストを取得**
 exports.getAvailableDates = async (req, res) => {
-    const user_id = req.user.user_id; // 🔹 user_id に統一
+    const user_id = req.user.user_id;
     try {
         const [dates] = await db.execute(
             `SELECT DISTINCT DATE_FORMAT(DATE(recorded_at), '%Y-%m-%d') AS date
@@ -65,45 +65,61 @@ exports.getTotalMuscleValue = async (req, res) => {
     }
 };
 
-// **週ごとの筋トレデータを取得**
 exports.getWeeklyData = async (req, res) => {
     const user_id = req.user.user_id;
     try {
-        const [weeklyData] = await db.execute(
-            `SELECT YEARWEEK(recorded_at) AS week, 
-                    e.category, 
-                    SUM(r.muscle_value) AS total_muscle_value
-             FROM muscle_records r
-             JOIN exercises e ON r.exercise_id = e.id
-             WHERE r.user_id = ? 
-             GROUP BY week, e.category
-             ORDER BY week ASC`, [user_id]
-        );
-        const [totalWeekly] = await db.execute(
-            `SELECT YEARWEEK(recorded_at) AS week, 
-                    COALESCE(SUM(muscle_value), 0) AS total_muscle
-             FROM muscle_records 
-             WHERE user_id = ?
-             GROUP BY week
-             ORDER BY week ASC`, [user_id]
-        );
-        const categories = [...new Set(weeklyData.map(d => d.category))];
-        const combinedData = {};
-        weeklyData.forEach(({ week, category, total_muscle_value }) => {
-            if (!combinedData[week]) {
-                combinedData[week] = { week, total_muscle: 0 };
-                categories.forEach(cat => combinedData[week][cat] = 0);
-            }
-            combinedData[week][category] = total_muscle_value;
-        });
-        totalWeekly.forEach(({ week, total_muscle }) => {
-            if (combinedData[week]) {
-                combinedData[week].total_muscle = total_muscle;
-            }
-        });
-        res.json({ weeklyData: Object.values(combinedData) });
+      const [weeklyData] = await db.execute(
+        `SELECT 
+            CONCAT(
+              YEAR(DATE_SUB(recorded_at, INTERVAL WEEKDAY(recorded_at) DAY)),
+              LPAD(WEEK(DATE_SUB(recorded_at, INTERVAL WEEKDAY(recorded_at) DAY), 3), 2, '0')
+            ) AS week,
+            e.category,
+            SUM(r.muscle_value) AS total_muscle_value
+         FROM muscle_records r
+         JOIN exercises e ON r.exercise_id = e.id
+         WHERE r.user_id = ? 
+         GROUP BY week, e.category
+         ORDER BY week ASC`, [user_id]
+      );
+  
+      const [totalWeekly] = await db.execute(
+        `SELECT 
+            CONCAT(
+              YEAR(DATE_SUB(recorded_at, INTERVAL WEEKDAY(recorded_at) DAY)),
+              LPAD(WEEK(DATE_SUB(recorded_at, INTERVAL WEEKDAY(recorded_at) DAY), 3), 2, '0')
+            ) AS week,
+            COALESCE(SUM(muscle_value), 0) AS total_muscle
+         FROM muscle_records 
+         WHERE user_id = ?
+         GROUP BY week
+         ORDER BY week ASC`, [user_id]
+      );
+  
+      const categories = [...new Set(weeklyData.map(d => d.category))];
+      const combinedData = {};
+  
+      weeklyData.forEach(({ week, category, total_muscle_value }) => {
+        if (!combinedData[week]) {
+          combinedData[week] = { week, total_muscle: 0 };
+          categories.forEach(cat => combinedData[week][cat] = 0);
+        }
+        combinedData[week][category] = total_muscle_value;
+      });
+  
+      totalWeekly.forEach(({ week, total_muscle }) => {
+        if (!combinedData[week]) {
+          combinedData[week] = { week, total_muscle };
+          categories.forEach(cat => combinedData[week][cat] = 0);
+        } else {
+          combinedData[week].total_muscle = total_muscle;
+        }
+      });
+  
+      res.json({ weeklyData: Object.values(combinedData) });
     } catch (err) {
-        console.error("❌ 週ごとのデータ取得エラー:", err.message);
-        res.status(500).json({ error: "週ごとのデータ取得に失敗しました。" });
+      console.error("❌ 週ごとのデータ取得エラー:", err.message);
+      res.status(500).json({ error: "週ごとのデータ取得に失敗しました。" });
     }
-};
+  };
+  

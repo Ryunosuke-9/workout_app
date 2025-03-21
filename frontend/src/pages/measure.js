@@ -94,8 +94,20 @@ const MeasurePage = () => {
     }
   };
 
-  // 種目を削除（パラメータ名は exercise_id に統一）
+  // 種目を削除
   const handleDelete = async (exercise_id) => {
+    // １段階目の確認（履歴も削除される旨を明示）
+    const firstConfirm = window.confirm(
+      "本当にこの種目を削除してよろしいですか？この種目で行ってきた履歴も消えてしまいます。"
+    );
+    if (!firstConfirm) return;
+
+    // ２段階目の確認
+    const secondConfirm = window.confirm(
+      "この操作は取り消せません。本当に削除してよろしいですか？"
+    );
+    if (!secondConfirm) return;
+
     const token = localStorage.getItem("token");
     try {
       console.log("📡 種目を削除:", exercise_id);
@@ -161,13 +173,13 @@ const MeasurePage = () => {
 
   return (
     <div className={styles.pageContainer}>
-      {/* ヘッダー */}
+
       <div className={styles.headerContainer}>
         <h1 className={styles.headerTitle}>総負荷量計測</h1>
         <HamburgerMenu />
       </div>
 
-      <div className={styles.sectionContainer}>
+      <div className={styles.contentContainer}>
         {/* 左カラム */}
         <div className={styles.leftColumn}>
           {/* 部位選択と種目登録 */}
@@ -264,7 +276,7 @@ const MeasurePage = () => {
 
         {/* 右カラム（今日の筋値） */}
         <div className={styles.rightColumn}>
-          <h2 className={styles.TodayMuscleValue}>今日の総負荷量</h2>
+          <h2 className={styles.TodayMuscleValue}>今日の記録</h2>
           <p className={styles.totalMuscleValue}>
             総負荷量: <span>{totalMuscleValue}</span> kg
           </p>

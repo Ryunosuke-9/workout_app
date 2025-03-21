@@ -23,6 +23,9 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
   margin-bottom: 30px;
   z-index: 1;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .headerTitle {
@@ -33,10 +36,12 @@
 }
 
 /* 📌 メインレイアウト */
-.sectionContainer {
+.contentContainer {
   display: flex;
   gap: 30px;
-  width: 100%;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* 📌 左右のカラムの比率を均等に */
@@ -81,11 +86,22 @@
   width: 100%;
   padding: 10px;
   font-size: 16px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
-  color: #e0e0e0;
+  color: #fff;
   outline: none;
+}
+
+.PartDropdown:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 選択肢（option）のスタイル */
+.PartDropdown option {
+  background-color: #333; 
+  color: #fff;
 }
 
 /* 📌 種目登録 */
@@ -142,6 +158,11 @@
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+.ExerciseContainer h2 {
+  text-align: center;
+  color: #c1a57b;
 }
 
 .ExerciseTable {
@@ -229,7 +250,7 @@
 .totalMuscleValue {
   font-size: 20px;
   font-weight: 600;
-  color: #ffcc00;
+  color: #c1a57b;
   margin-bottom: 20px;
   text-align: center;
 }
