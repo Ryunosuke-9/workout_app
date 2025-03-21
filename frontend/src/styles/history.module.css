@@ -252,7 +252,7 @@
 }
 
 /* 📌 グラフツールチップのスタイル */
-:root {
+:global(:root) {
   --tooltip-bg: #222;
   --tooltip-text: #ffcc00;
   --tooltip-border: #ffcc00;
