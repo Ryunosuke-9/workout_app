@@ -47,3 +47,10 @@ a {
   padding: 0;
   box-sizing: border-box;
 }
+
+/* 📌 グラフツールチップのスタイル */
+:root {
+  --tooltip-bg: #222;
+  --tooltip-text: #ffcc00;
+  --tooltip-border: #ffcc00;
+}

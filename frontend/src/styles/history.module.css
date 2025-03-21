@@ -250,10 +250,3 @@
   font-size: 16px;
   color: #ffcc00;
 }
-
-/* 📌 グラフツールチップのスタイル */
-:global(:root) {
-  --tooltip-bg: #222;
-  --tooltip-text: #ffcc00;
-  --tooltip-border: #ffcc00;
-}
