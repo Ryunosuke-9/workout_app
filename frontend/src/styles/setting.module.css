@@ -203,7 +203,7 @@
   color: white;
   outline: none;
   position: absolute;
-  right: 1000;
+  right: 700;
 }
 .dateSelect:hover {
   background: rgba(255,255,255,0.2);
