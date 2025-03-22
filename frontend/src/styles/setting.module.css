@@ -17,6 +17,7 @@
 /* ヘッダー */
 .headerContainer {
   display: flex;
+  position: relative;
   justify-content: space-between;
   align-items: center;
   background: rgba(255, 255, 255, 0.05);
@@ -25,8 +26,10 @@
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
   margin-bottom: 30px;
+  z-index: 1;
   width: 90%;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto
 }
 
 .headerTitle {
