@@ -13,12 +13,14 @@ const registerRoute = require("./routes/register");
 const loginRoute = require("./routes/login");
 const measureRoute = require("./routes/measure");
 const historyRoutes = require("./routes/history");
+const settingRoutes = require("./routes/setting");
 
 
 app.use("/api/register", registerRoute);
 app.use("/api/login", loginRoute);
 app.use("/api/measure", authenticateToken, measureRoute); // ✅ `measure` ルートに認証を適用
-app.use("/api/history", authenticateToken,historyRoutes);
+app.use("/api/history", authenticateToken, historyRoutes);
+app.use("/api/setting", authenticateToken, settingRoutes)
 
 // ✅ `app` のみをエクスポート（`{ app }` ではなく `app`）
 module.exports = app;

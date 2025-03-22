@@ -31,9 +31,9 @@ export default function HamburgerMenu() {
 
             {/* 🔹 メニューの中身（開いているときのみ表示） */}
             <ul className={`${styles.menuList} ${isOpen ? styles.open : ""}`}>
-                <li><Link href="/measure">Measure</Link></li>
-                <li><Link href="/history">History</Link></li>
-                <li><Link href="/settings">設定</Link></li>
+                <li><Link href="/measure">計測</Link></li>
+                <li><Link href="/history">履歴</Link></li>
+                <li><Link href="/setting">設定</Link></li>
             </ul>
         </div>
     );
