@@ -47,7 +47,7 @@ const SettingPage = () => {
     [router]
   );
 
-  // 初期設定：ユーザーID取得
+  // ユーザーIDの取得
   useEffect(() => {
     const id = localStorage.getItem("user_id");
     if (id) setUserId(id);
@@ -73,7 +73,7 @@ const SettingPage = () => {
     }
   };
 
-  // アカウント削除
+  // アカウント削除処理
   const handleAccountDelete = async () => {
     if (!confirm("本当にアカウントを削除しますか？")) return;
     try {
@@ -90,7 +90,7 @@ const SettingPage = () => {
     }
   };
 
-  // ログアウト
+  // ログアウト処理
   const handleLogout = () => {
     localStorage.clear();
     router.push("/login");
@@ -102,9 +102,7 @@ const SettingPage = () => {
       const token = getToken();
       if (!token) throw new Error("トークンが存在しません");
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await fetch(`${API_URL}/daily?date=${dateStr}`, {
-        headers,
-      });
+      const response = await fetch(`${API_URL}/daily?date=${dateStr}`, { headers });
       if (!response.ok) {
         throw new Error(`データ取得エラー: ${response.status}`);
       }
@@ -149,13 +147,13 @@ const SettingPage = () => {
     fetchDailyHistory(newDate);
   };
 
-  // 編集開始
+  // 履歴編集開始
   const handleEditRecord = (index) => {
     setEditingIndex(index);
     setEditingRecord({ ...dailyHistory[index] });
   };
 
-  // 編集保存：API に PUT リクエスト送信
+  // 履歴編集保存
   const handleSaveEdit = async (index) => {
     try {
       const token = getToken();
@@ -191,7 +189,7 @@ const SettingPage = () => {
     }
   };
 
-  // 削除処理：API に DELETE リクエスト送信
+  // 履歴削除処理
   const handleDeleteRecord = async (index) => {
     if (!confirm("この記録を削除しますか？")) return;
     try {
@@ -384,10 +382,16 @@ const SettingPage = () => {
                     </td>
                     <td>{editingRecord.weight * editingRecord.reps}</td>
                     <td>
-                      <button onClick={() => handleSaveEdit(index)}>
+                      <button
+                        className={`${styles.buttonModern} ${styles.saveButton}`}
+                        onClick={() => handleSaveEdit(index)}
+                      >
                         保存
                       </button>
-                      <button onClick={() => setEditingIndex(null)}>
+                      <button
+                        className={`${styles.buttonModern} ${styles.cancelButton}`}
+                        onClick={() => setEditingIndex(null)}
+                      >
                         キャンセル
                       </button>
                     </td>
@@ -401,13 +405,13 @@ const SettingPage = () => {
                     <td>{item.muscle_value}</td>
                     <td>
                       <button
-                        className={styles.editButton}
+                        className={`${styles.buttonModern} ${styles.editButton}`}
                         onClick={() => handleEditRecord(index)}
                       >
                         編集
                       </button>
                       <button
-                        className={styles.deleteButton}
+                        className={`${styles.buttonModern} ${styles.deleteButton}`}
                         onClick={() => handleDeleteRecord(index)}
                       >
                         削除
@@ -419,9 +423,7 @@ const SettingPage = () => {
             </tbody>
           </table>
         ) : (
-          <p className={styles.noDataMessage}>
-            この日には記録がありません。
-          </p>
+          <p className={styles.noDataMessage}>この日には記録がありません。</p>
         )}
         {message && <p className={styles.message}>{message}</p>}
       </div>

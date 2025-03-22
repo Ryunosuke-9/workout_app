@@ -19,11 +19,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   padding: 15px 30px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
   margin-bottom: 30px;
   width: 90%;
   margin: 0 auto;
@@ -47,11 +47,11 @@
   gap: 20px;
   margin: 20px auto;
   width: 90%;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(8px);
   border-radius: 10px;
   padding: 25px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
 }
 
 .accountContainer h2 {
@@ -60,7 +60,7 @@
 
 /* スペーサー */
 .spacer {
-  height: 0px; /* 必要な高さに合わせて調整 */
+  height: 0px;
 }
 
 /* 各列 */
@@ -80,7 +80,7 @@
 
 .infoLabel {
   display: inline-block;
-  width: 100px; /* ラベル部分の固定幅 */
+  width: 100px;
   font-weight: 600;
 }
 
@@ -91,13 +91,13 @@
   font-size: 14px;
   border: none;
   border-radius: 6px;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   color: #e0e0e0;
   cursor: pointer;
   transition: background 0.3s ease;
 }
 .smallButton:hover {
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* パスワード変更フォーム */
@@ -146,11 +146,11 @@
 
 /* ログアウトボタン */
 .logoutButton {
-  background: rgba(0,150,136,0.7);
+  background: rgba(0, 150, 136, 0.7);
   color: #fff;
 }
 .logoutButton:hover {
-  background: rgba(0,150,136,0.9);
+  background: rgba(0, 150, 136, 0.9);
 }
 
 /* アカウント削除ボタン */
@@ -166,15 +166,73 @@
 /* 履歴編集・削除（下カラム） */
 /* =================================== */
 
+/* 共通のモダンボタンスタイル */
+.buttonModern {
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+.buttonModern:hover {
+  background-color: #f5f5f5;
+  border-color: #aaa;
+}
+
+/* 編集ボタン */
+.editButton {
+  color: #007bff;
+  border-color: #007bff;
+}
+.editButton:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* 削除ボタン */
+.deleteButton {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+.deleteButton:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+/* 保存ボタン */
+.saveButton {
+  color: #28a745;
+  border-color: #28a745;
+}
+.saveButton:hover {
+  background-color: #28a745;
+  color: #fff;
+}
+
+/* キャンセルボタン */
+.cancelButton {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+.cancelButton:hover {
+  background-color: #6c757d;
+  color: #fff;
+}
+
 /* 履歴編集コンテナ */
 .historyEditContainer {
   width: 90%;
   margin: 20px auto;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(8px);
   border-radius: 10px;
   padding: 25px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
 }
 
 /* 履歴ヘッダー */
@@ -188,7 +246,7 @@
   position: relative;
 }
 
-/* 履歴タイトル（中央配置） */
+/* 履歴タイトル */
 .historyTitle {
   color: #c1a57b;
 }
@@ -199,14 +257,14 @@
   font-size: 16px;
   border: none;
   border-radius: 8px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   outline: none;
   position: absolute;
   right: 700;
 }
 .dateSelect:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 .dateSelect option {
   background-color: #333;
@@ -217,7 +275,7 @@
 .historyTable {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -225,10 +283,10 @@
 .historyTable td {
   padding: 12px;
   text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .historyTable th {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   font-size: 16px;
   font-weight: 600;
   color: #c1a57b;
@@ -256,71 +314,4 @@
   font-size: 16px;
   color: #ffcc00;
   margin-top: 20px;
-}
-
-/* オプション：グラフコンテナ（必要なら） */
-.graphContainer {
-  width: 90%;
-  margin: 0 auto 40px;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(8px);
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-  text-align: center;
-}
-.graphContainer h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #c1a57b;
-  margin-bottom: 20px;
-}
-.graphSelectLabel {
-  font-size: 16px;
-  font-weight: 600;
-  color: #e0e0e0;
-  margin-bottom: 20px;
-  display: inline-block;
-}
-.graphSelect {
-  padding: 10px 15px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.1);
-  color: #e0e0e0;
-  margin-left: 10px;
-  outline: none;
-  transition: background 0.3s;
-}
-.graphSelect:hover {
-  background: rgba(255,255,255,0.2);
-}
-.graphSelect option {
-  background-color: #333;
-  color: #fff;
-}
-
-/* =================================== */
-/* History Page 固有のスタイル（任意） */
-/* =================================== */
-
-/* 左カラム（履歴一覧） - History Page */
-.leftColumn {
-  flex: 0 0 60%;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(8px);
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: inset 0 0 10px rgba(255,255,255,0.2),
-    0 4px 15px rgba(0,0,0,0.7);
-}
-
-/* columnsContainer (任意) */
-.columnsContainer {
-  display: flex;
-  justify-content: space-between;
-  width: 90%;
-  gap: 30px;
-  margin: 0 auto 30px;
 }
