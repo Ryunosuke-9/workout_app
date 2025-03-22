@@ -53,20 +53,17 @@ const SettingPage = () => {
     if (id) setUserId(id);
   }, []);
 
-  // パスワード変更
+  // パスワード変更処理
   const handlePasswordChange = async () => {
     try {
       const token = getToken();
-      const res = await fetch(`${API_URL}/password`, {
+      const res = await fetch(`${API_URL}/account/password`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-        }),
+        body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
       setMessage(data.message || data.error || "パスワード更新結果不明");
@@ -81,7 +78,7 @@ const SettingPage = () => {
     if (!confirm("本当にアカウントを削除しますか？")) return;
     try {
       const token = getToken();
-      await fetch(`${API_URL}`, {
+      await fetch(`${API_URL}/account`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -119,7 +116,7 @@ const SettingPage = () => {
     }
   }, [handleAuthError]);
 
-  // 利用可能な日付を取得して初期日付を設定
+  // 利用可能な日付の取得と初期日付設定
   useEffect(() => {
     const fetchDates = async () => {
       try {
@@ -162,7 +159,7 @@ const SettingPage = () => {
   const handleSaveEdit = async (index) => {
     try {
       const token = getToken();
-      const res = await fetch(`${API_URL}/update`, {
+      const res = await fetch(`${API_URL}/records/${editingRecord.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -200,7 +197,7 @@ const SettingPage = () => {
     try {
       const token = getToken();
       const recordId = dailyHistory[index].id;
-      const res = await fetch(`${API_URL}/delete/${recordId}`, {
+      const res = await fetch(`${API_URL}/records/${recordId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
