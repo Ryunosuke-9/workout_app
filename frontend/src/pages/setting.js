@@ -382,18 +382,20 @@ const SettingPage = () => {
                     </td>
                     <td>{editingRecord.weight * editingRecord.reps}</td>
                     <td>
-                      <button
-                        className={`${styles.buttonModern} ${styles.saveButton}`}
-                        onClick={() => handleSaveEdit(index)}
-                      >
-                        保存
-                      </button>
-                      <button
-                        className={`${styles.buttonModern} ${styles.cancelButton}`}
-                        onClick={() => setEditingIndex(null)}
-                      >
-                        キャンセル
-                      </button>
+                      <div className={styles.buttonGroup}>
+                        <button
+                          className={`${styles.buttonModern} ${styles.saveButton}`}
+                          onClick={() => handleSaveEdit(index)}
+                        >
+                          保存
+                        </button>
+                        <button
+                          className={`${styles.buttonModern} ${styles.cancelButton}`}
+                          onClick={() => setEditingIndex(null)}
+                        >
+                          キャンセル
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -404,18 +406,20 @@ const SettingPage = () => {
                     <td>{item.reps}</td>
                     <td>{item.muscle_value}</td>
                     <td>
-                      <button
-                        className={`${styles.buttonModern} ${styles.editButton}`}
-                        onClick={() => handleEditRecord(index)}
-                      >
-                        編集
-                      </button>
-                      <button
-                        className={`${styles.buttonModern} ${styles.deleteButton}`}
-                        onClick={() => handleDeleteRecord(index)}
-                      >
-                        削除
-                      </button>
+                      <div className={styles.buttonGroup}>
+                        <button
+                          className={`${styles.buttonModern} ${styles.editButton}`}
+                          onClick={() => handleEditRecord(index)}
+                        >
+                          編集
+                        </button>
+                        <button
+                          className={`${styles.buttonModern} ${styles.deleteButton}`}
+                          onClick={() => handleDeleteRecord(index)}
+                        >
+                          削除
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )

@@ -162,67 +162,74 @@
   background: linear-gradient(135deg, #c62828, #b71c1c);
 }
 
+
+
+
+
+
+
+
+
 /* =================================== */
 /* 履歴編集・削除（下カラム） */
 /* =================================== */
 
-/* 共通のモダンボタンスタイル */
+/* ボタンをまとめるコンテナ（テーブルセル内で使用） */
+.buttonGroup {
+  display: inline-flex; /* または flex */
+  gap: 10px;           /* ボタン同士の間隔 */
+}
+
+/* 共通の操作ボタンスタイル */
 .buttonModern {
-  background: transparent;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 8px 16px;
+  padding: 8px 16px;       /* パディングを少し小さめに */
+  border: none;
+  border-radius: 8px;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-  margin-right: 5px;
-  white-space: nowrap;
-}
-
-.buttonModern:hover {
-  background-color: #f5f5f5;
-  border-color: #aaa;
-}
-
-/* 編集ボタン */
-.editButton {
-  color: #007bff;
-  border-color: #007bff;
-}
-.editButton:hover {
-  background-color: #007bff;
-  color: #fff;
-}
-
-/* 削除ボタン */
-.deleteButton {
-  color: #dc3545;
-  border-color: #dc3545;
-}
-.deleteButton:hover {
-  background-color: #dc3545;
-  color: #fff;
+  transition: background 0.3s ease;
+  width: auto;             /* 幅を自動調整に */
+  /* gap: 10px; <-- gapはコンテナに設定するので不要 */
+  margin: 0;               /* 個々のボタンのマージンは不要 */
 }
 
 /* 保存ボタン */
 .saveButton {
-  color: #28a745;
-  border-color: #28a745;
+  background: linear-gradient(135deg, #4caf50, #388e3c);
+  color: #fff;
 }
 .saveButton:hover {
-  background-color: #28a745;
-  color: #fff;
+  background: linear-gradient(135deg, #388e3c, #2e7d32);
 }
 
 /* キャンセルボタン */
 .cancelButton {
-  color: #6c757d;
-  border-color: #6c757d;
-}
-.cancelButton:hover {
-  background-color: #6c757d;
+  background: linear-gradient(135deg, #6c757d, #5a6268);
   color: #fff;
 }
+.cancelButton:hover {
+  background: linear-gradient(135deg, #5a6268, #495057);
+}
+
+/* 編集ボタン */
+.editButton {
+  background: linear-gradient(135deg, #007bff, #0069d9);
+  color: #fff;
+}
+.editButton:hover {
+  background: linear-gradient(135deg, #0069d9, #0056b3);
+}
+
+/* 削除ボタン */
+.deleteButton {
+  background: linear-gradient(135deg, #e53935, #c62828);
+  color: #fff;
+}
+.deleteButton:hover {
+  background: linear-gradient(135deg, #c62828, #b71c1c);
+}
+
 
 /* 履歴編集コンテナ */
 .historyEditContainer {
@@ -238,20 +245,18 @@
 /* 履歴ヘッダー */
 .historyHeader {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: left;
   margin-bottom: 20px;
   padding: 20px 0;
-  width: 100%;
-  position: relative;
+  width: 92%;
+  /* positionは不要 */
 }
 
-/* 履歴タイトル */
-.historyTitle {
+.headerTitle{
   color: #c1a57b;
 }
 
-/* 日付選択フォーム（右側固定） */
 .dateSelect {
   padding: 10px;
   font-size: 16px;
@@ -260,9 +265,11 @@
   background: rgba(255, 255, 255, 0.1);
   color: white;
   outline: none;
-  position: absolute;
-  right: 700;
+  /* 絶対位置指定を削除し、自然なフローに任せる */
+  margin-left: 20px; /* タイトルとの間に余白を作る */
 }
+
+
 .dateSelect:hover {
   background: rgba(255, 255, 255, 0.2);
 }
