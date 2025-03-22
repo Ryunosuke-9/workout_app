@@ -42,6 +42,35 @@ exports.changePassword = async (req, res) => {
   }
 };
 
+// ✅ ユーザーの登録日と筋トレ日数を取得
+exports.getUserStats = async (req, res) => {
+  const user_id = req.user.user_id;
+  try {
+    // 登録日を取得
+    const [userRows] = await db.query(
+      "SELECT DATE_FORMAT(created_at, '%Y-%m-%d') AS registrationDate FROM users WHERE user_id = ?",
+      [user_id]
+    );
+
+    // 筋トレを行った日数をカウント（重複のない日付数）
+    const [countRows] = await db.query(
+      `SELECT COUNT(DISTINCT DATE(recorded_at)) AS workoutDays 
+       FROM muscle_records 
+       WHERE user_id = ?`,
+      [user_id]
+    );
+
+    const registrationDate = userRows[0]?.registrationDate || null;
+    const workoutDays = countRows[0]?.workoutDays || 0;
+
+    res.json({ registrationDate, workoutDays });
+  } catch (err) {
+    console.error("❌ ユーザースタッツ取得エラー:", err);
+    res.status(500).json({ error: "登録日と筋トレ日数の取得に失敗しました。" });
+  }
+};
+
+
 // 利用可能な日付のリストを取得
 exports.getAvailableDates = async (req, res) => {
   const user_id = req.user.user_id;

@@ -231,7 +231,7 @@
 
 /* 📌 右カラム */
 .rightColumn {
-  flex: 3;
+  flex: 2.5;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(8px);
   border-radius: 10px;

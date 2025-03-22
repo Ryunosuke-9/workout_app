@@ -15,7 +15,7 @@ const SettingPage = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [theme, setTheme] = useState("white");
+  const [theme, setTheme] = useState("black");
 
   // 履歴・日付用
   const [selectedDate, setSelectedDate] = useState("");
@@ -28,6 +28,10 @@ const SettingPage = () => {
   // 編集状態管理（履歴テーブル）
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
+
+  const [registrationDate, setRegistrationDate] = useState("");
+  const [workoutDays, setWorkoutDays] = useState(null);
+
 
   const getToken = () => localStorage.getItem("token");
 
@@ -95,6 +99,24 @@ const SettingPage = () => {
     localStorage.clear();
     router.push("/login");
   };
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_URL}/stats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setRegistrationDate(data.registrationDate);
+        setWorkoutDays(data.workoutDays);
+      } catch (error) {
+        console.error("📛 ユーザー情報取得失敗:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+  
 
   // 選択日付の履歴取得
   const fetchDailyHistory = useCallback(async (dateStr) => {
@@ -222,16 +244,22 @@ const SettingPage = () => {
   };
 
   return (
-    <div className={styles.pageContainer}>
+    <div
+      className={`${styles.pageContainer} ${
+        theme === "white" ? styles.whiteTheme : styles.blackTheme
+      }`}
+    >
+
       {/* ヘッダー */}
       <div className={styles.headerContainer}>
         <h1 className={styles.headerTitle}>設定</h1>
         <HamburgerMenu />
       </div>
 
-      {/* アカウント情報：1行×3列グリッド */}
+      {/* アカウント情報：2行×3列グリッド */}
       <div className={styles.accountContainer}>
         <h2>アカウント情報</h2>
+        {/* 空白 */}
         <div className={styles.spacer}></div>
         <div className={styles.spacer}></div>
 
@@ -246,7 +274,7 @@ const SettingPage = () => {
             <span>
               ********
               <button
-                className={styles.smallButton}
+                className={styles.ChangeButton}
                 onClick={() => setShowPasswordForm(!showPasswordForm)}
               >
                 {showPasswordForm ? "閉じる" : "変更"}
@@ -272,36 +300,20 @@ const SettingPage = () => {
           )}
         </div>
 
-        {/* 中央列：ページのデザイン & テーマ選択 */}
+        
+        {/* 中央列：登録情報（登録日・筋トレ日数） */}
         <div className={styles.column}>
           <p className={styles.infoLine}>
-            <label>ページのデザイン</label>
+            <span className={styles.infoLabel}>登録日:</span>
+            <span>{registrationDate || "取得中..."}</span>
           </p>
           <p className={styles.infoLine}>
-            <div className={styles.themeRow}>
-              <label>
-                <input
-                  type="radio"
-                  name="theme"
-                  value="black"
-                  checked={theme === "black"}
-                  onChange={() => setTheme("black")}
-                />
-                黒
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="theme"
-                  value="white"
-                  checked={theme === "white"}
-                  onChange={() => setTheme("white")}
-                />
-                白
-              </label>
-            </div>
+            <span className={styles.infoLabel}>筋トレ日数:</span>
+            <span>{workoutDays != null ? `${workoutDays} 日` : "取得中..."}</span>
           </p>
         </div>
+
+        
 
         {/* 右列：ログアウト & アカウント削除 */}
         <div className={styles.column}>

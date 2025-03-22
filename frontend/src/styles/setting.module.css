@@ -8,11 +8,13 @@
 /* ページ全体 */
 .pageContainer {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
   min-height: 100vh;
-  color: #e0e0e0;
   padding: 20px;
+  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+  color: #e0e0e0;
 }
+
+
 
 /* ヘッダー */
 .headerContainer {

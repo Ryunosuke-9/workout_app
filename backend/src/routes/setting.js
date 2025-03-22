@@ -2,6 +2,7 @@ const express = require("express");
 const {
   deleteAccount,
   changePassword,
+  getUserStats,
   getAvailableDates,
   getDailyHistory,
   updateMuscleRecord,
@@ -16,6 +17,8 @@ router.delete("/account", authenticateToken, deleteAccount);
 
 // パスワード変更
 router.put("/account/password", authenticateToken, changePassword);
+
+router.get("/stats", authenticateToken, getUserStats);
 
 // 利用可能な日付リストの取得
 router.get("/dates", authenticateToken, getAvailableDates);
