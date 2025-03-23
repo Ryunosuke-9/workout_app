@@ -3,6 +3,11 @@ require("dotenv").config();
 const { applyMiddlewares } = require("./middleware/apply"); // ✅ 共通ミドルウェア
 const { authenticateToken } = require("./middleware/auth"); // ✅ 認証ミドルウェア
 
+app.get("/", (req, res) => {
+    res.send("🚀 musclog.com へようこそ！");
+  });
+  
+
 const app = express();
 
 // ✅ 共通ミドルウェアを適用
