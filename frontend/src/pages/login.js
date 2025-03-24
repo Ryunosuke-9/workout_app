@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/login.module.css";
 
-const API_URL = "https://18.183.224.238:5000/api/login";
+const API_URL = "https://musclog.com/api/login";
 
 const Login = () => {
   const router = useRouter();

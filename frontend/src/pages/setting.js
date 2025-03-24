@@ -4,7 +4,7 @@ import styles from "@/styles/setting.module.css";
 import useAuth from "@/hooks/auth";
 import HamburgerMenu from "@/components/HamburgerMenu";
 
-const API_URL = "https://18.183.224.238:5000/api/setting";
+const API_URL = "https://musclog.com/api/setting";
 
 const SettingPage = () => {
   useAuth();
