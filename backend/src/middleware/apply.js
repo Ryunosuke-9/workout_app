@@ -5,7 +5,7 @@ const cors = require("cors");
 const allowedOrigins = [
   "http://18.183.224.238",     // IPアドレスでのアクセス
   "http://localhost:3000",     // ローカル開発環境
-  "http://musclog.com"         // ✅ ドメインからのアクセスも許可
+  "https://musclog.com"         // ✅ ドメインからのアクセスも許可
 ];
 
 const applyMiddlewares = (app) => {
