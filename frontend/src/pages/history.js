@@ -13,7 +13,7 @@ import styles from "@/styles/history.module.css";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import useAuth from "@/hooks/auth";
 
-const API_URL = "https://musclog.com/api/history";
+const API_URL = "http://18.183.224.238/api/history";
 
 const HistoryPage = () => {
   useAuth();

@@ -1,61 +1,69 @@
 const bcrypt = require("bcrypt");
 const db = require("../db");
 
-// **ユーザーをデータベースに追加**
+// 🔸ユーザー作成（DB）
 const createUser = async (user_id, hashed_password) => {
-  return db.execute("INSERT INTO users (user_id, password) VALUES (?, ?)", [user_id, hashed_password]);
+  return db.execute(
+    "INSERT INTO users (user_id, password) VALUES (?, ?)",
+    [user_id, hashed_password]
+  );
 };
 
-// **ユーザーIDで検索（`password` を取得せずに最適化）**
+// 🔸ユーザーID検索（存在確認用）
 const findUserByUserId = async (user_id) => {
-  const [rows] = await db.execute("SELECT user_id FROM users WHERE user_id = ?", [user_id]);
-  return rows.length > 0 ? rows[0] : null;
+  const [rows] = await db.execute(
+    "SELECT user_id FROM users WHERE user_id = ?",
+    [user_id]
+  );
+  return rows[0] || null;
 };
 
-// **ユーザー登録処理**
+// 🔸定数で共通メッセージをまとめる
+const ERRORS = {
+  REQUIRED: "⚠️ すべての項目を入力してください。",
+  PASSWORD_MISMATCH: "⚠️ パスワードが一致しません。",
+  USER_ID_INVALID: "⚠️ ユーザーIDは5文字以上の英数字のみで入力してください。",
+  PASSWORD_INVALID: "⚠️ パスワードは8文字以上で、大文字・小文字・数字をそれぞれ1文字以上含めてください。",
+  DUPLICATE_USER: "⚠️ このユーザーIDは既に使用されています。",
+  SERVER: "❌ サーバーエラーが発生しました。",
+};
+
+// 🔸バリデーション関数を外出し
+const isValidUserId = (id) => /^[A-Za-z0-9]{5,}$/.test(id);
+const isValidPassword = (pw) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(pw);
+
+// 🔹ユーザー登録処理
 exports.registerUser = async (req, res) => {
   try {
-    console.log("📌 受信データ:", req.body); // デバッグ用ログ
-
     const { user_id, password, confirm_password } = req.body;
 
-    // **1. 必須項目チェック**
     if (!user_id || !password || !confirm_password) {
-      return res.status(400).json({ error: "⚠️ すべての項目を入力してください。" });
+      return res.status(400).json({ error: ERRORS.REQUIRED });
     }
 
-    // **2. パスワード一致チェック**
     if (password !== confirm_password) {
-      return res.status(400).json({ error: "⚠️ パスワードが一致しません。" });
+      return res.status(400).json({ error: ERRORS.PASSWORD_MISMATCH });
     }
 
-    // **3. ユーザーIDのバリデーション**
-    const user_idRegex = /^[A-Za-z0-9]{5,}$/;
-    if (!user_idRegex.test(user_id)) {
-      return res.status(400).json({ error: "⚠️ ユーザーIDは5文字以上の英数字のみで入力してください。" });
+    if (!isValidUserId(user_id)) {
+      return res.status(400).json({ error: ERRORS.USER_ID_INVALID });
     }
 
-    // **4. パスワードのバリデーション**
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({ error: "⚠️ パスワードは8文字以上で、大文字・小文字・数字をそれぞれ1文字以上含めてください。" });
+    if (!isValidPassword(password)) {
+      return res.status(400).json({ error: ERRORS.PASSWORD_INVALID });
     }
 
-    // **5. 既存ユーザーの確認**
     const existingUser = await findUserByUserId(user_id);
     if (existingUser) {
-      return res.status(400).json({ error: "⚠️ このユーザーIDは既に使用されています。" });
+      return res.status(400).json({ error: ERRORS.DUPLICATE_USER });
     }
 
-    // **6. パスワードのハッシュ化**
     const hashed_password = await bcrypt.hash(password, 10);
     await createUser(user_id, hashed_password);
 
-    console.log(`✅ 新規ユーザー登録成功: ${user_id}`);
-    res.status(201).json({ message: "✅ アカウントが作成されました！" });
-
+    return res.status(201).json({ message: "✅ アカウントが作成されました！" });
   } catch (error) {
     console.error("🚨 登録エラー:", error);
-    res.status(500).json({ error: "❌ サーバーエラーが発生しました。" });
+    return res.status(500).json({ error: ERRORS.SERVER });
   }
 };
