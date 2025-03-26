@@ -1,137 +1,158 @@
 const db = require("../db");
 
-// **種目を取得（部位ごと）**
+// 種目取得のメイン処理（部位ごと）
 exports.getExercisesByCategory = async (req, res) => {
+  try {
+    // ユーザーIDを取得
     const user_id = req.user.user_id;
+
+    // リクエストからデータを取得
     const { category } = req.params;
 
-    try {
-        console.log("📡 種目取得: ユーザーID", user_id, "カテゴリ:", category);
+    // 種目を取得
+    const [exercises] = await db.query(
+      "SELECT id, name FROM exercises WHERE user_id = ? AND category = ?",
+      [user_id, category]
+    );
 
-        const [exercises] = await db.query(
-            "SELECT id, name FROM exercises WHERE user_id = ? AND category = ?",
-            [user_id, category]
-        );
-
-        res.json(exercises);
-    } catch (err) {
-        console.error("❌ 種目取得エラー:", err);
-        res.status(500).json({ error: "種目の取得に失敗しました。" });
-    }
+    // 成功時のレスポンス
+    return res.json(exercises);
+  } catch (error) {
+    // エラー発生時のログ出力とレスポンス
+    console.error("🚨 種目取得エラー:", error);
+    return res.status(500).json({ error: "❌ 種目の取得に失敗しました。" });
+  }
 };
 
-// **新しい種目を追加**
+// 新規種目追加のメイン処理
 exports.addExercise = async (req, res) => {
+  try {
+    // ユーザーIDを取得
     const user_id = req.user.user_id;
+
+    // リクエストからデータを取得
     const { name, category } = req.body;
 
+    // 必須項目のチェック
     if (!name || !category) {
-        return res.status(400).json({ error: "種目名とカテゴリは必須です。" });
+      return res.status(400).json({ error: "⚠️ 種目名とカテゴリは必須です。" });
     }
 
-    try {
-        console.log("📡 種目追加: ユーザーID", user_id, "種目:", name, "カテゴリ:", category);
+    // 種目を追加
+    await db.query(
+      "INSERT INTO exercises (user_id, name, category) VALUES (?, ?, ?)",
+      [user_id, name, category]
+    );
 
-        await db.query(
-            "INSERT INTO exercises (user_id, name, category) VALUES (?, ?, ?)",
-            [user_id, name, category]
-        );
-
-        res.status(201).json({ message: "✅ 種目を追加しました！" });
-    } catch (err) {
-        console.error("❌ 種目追加エラー:", err);
-        res.status(500).json({ error: "種目の追加に失敗しました。" });
-    }
+    // 成功時のレスポンス
+    return res.status(201).json({ message: "✅ 種目を追加しました！" });
+  } catch (error) {
+    // エラー発生時のログ出力とレスポンス
+    console.error("🚨 種目追加エラー:", error);
+    return res.status(500).json({ error: "❌ 種目の追加に失敗しました。" });
+  }
 };
 
-// **種目削除**
+// 種目削除のメイン処理
 exports.deleteExercise = async (req, res) => {
+  try {
+    // ユーザーIDを取得
     const user_id = req.user.user_id;
-    // パラメータ名は exercise_id に統一
+
+    // リクエストからデータを取得
     const { exercise_id } = req.params;
 
-    try {
-        console.log("📡 種目削除リクエスト: ユーザーID", user_id, "種目ID:", exercise_id);
+    // 筋トレ記録から削除
+    await db.query(
+      "DELETE FROM muscle_records WHERE user_id = ? AND exercise_id = ?",
+      [user_id, exercise_id]
+    );
 
-        // muscle_records から削除
-        const [result1] = await db.query(
-            "DELETE FROM muscle_records WHERE user_id = ? AND exercise_id = ?",
-            [user_id, exercise_id]
-        );
-        console.log("muscle_records 削除件数:", result1.affectedRows);
+    // 種目から削除
+    const [result] = await db.query(
+      "DELETE FROM exercises WHERE user_id = ? AND id = ?",
+      [user_id, exercise_id]
+    );
 
-        // exercises から削除
-        const [result2] = await db.query(
-            "DELETE FROM exercises WHERE user_id = ? AND id = ?",
-            [user_id, exercise_id]
-        );
-        console.log("exercises 削除件数:", result2.affectedRows);
-
-        if (result2.affectedRows === 0) {
-            return res.status(404).json({ error: "⚠️ 該当する種目が見つかりませんでした。" });
-        }
-
-        res.json({ message: "✅ 種目を削除しました！" });
-    } catch (err) {
-        console.error("❌ 種目削除エラー:", err);
-        res.status(500).json({ error: "種目の削除に失敗しました。" });
+    // 削除結果のチェック
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "⚠️ 該当する種目が見つかりませんでした。" });
     }
+
+    // 成功時のレスポンス
+    return res.json({ message: "✅ 種目を削除しました！" });
+  } catch (error) {
+    // エラー発生時のログ出力とレスポンス
+    console.error("🚨 種目削除エラー:", error);
+    return res.status(500).json({ error: "❌ 種目の削除に失敗しました。" });
+  }
 };
 
-// **筋トレ記録**
+// 筋トレ記録のメイン処理
 exports.recordMuscleData = async (req, res) => {
-    const { exercise_id, weight, reps } = req.body;
+  try {
+    // ユーザーIDを取得
     const user_id = req.user.user_id;
-    const muscleValue = weight * reps;
 
+    // リクエストからデータを取得
+    const { exercise_id, weight, reps } = req.body;
+
+    // 必須項目のチェック
     if (!exercise_id || !weight || !reps) {
-        return res.status(400).json({ error: "すべての項目を入力してください。" });
+      return res.status(400).json({ error: "⚠️ すべての項目を入力してください。" });
     }
 
-    try {
-        console.log("📡 筋トレ記録: ユーザーID", user_id, "種目ID:", exercise_id);
+    // 筋トレ値を計算
+    const muscle_value = weight * reps;
 
-        await db.query(
-            "INSERT INTO muscle_records (user_id, exercise_id, weight, reps, muscle_value, recorded_at) VALUES (?, ?, ?, ?, ?, NOW())",
-            [user_id, exercise_id, weight, reps, muscleValue]
-        );
+    // 筋トレ記録を保存
+    await db.query(
+      "INSERT INTO muscle_records (user_id, exercise_id, weight, reps, muscle_value, recorded_at) VALUES (?, ?, ?, ?, ?, NOW())",
+      [user_id, exercise_id, weight, reps, muscle_value]
+    );
 
-        res.status(201).json({ message: "✅ 筋トレデータを保存しました！", muscleValue });
-    } catch (err) {
-        console.error("❌ データ保存エラー:", err);
-        res.status(500).json({ error: "データ保存に失敗しました。" });
-    }
+    // 成功時のレスポンス
+    return res.status(201).json({ message: "✅ 筋トレデータを保存しました！", muscle_value });
+  } catch (error) {
+    // エラー発生時のログ出力とレスポンス
+    console.error("🚨 データ保存エラー:", error);
+    return res.status(500).json({ error: "❌ データ保存に失敗しました。" });
+  }
 };
 
-// **今日の総負荷データを取得**
+// 今日の総負荷データ取得のメイン処理
 exports.getDailyMuscleSummary = async (req, res) => {
+  try {
+    // ユーザーIDを取得
     const user_id = req.user.user_id;
 
-    try {
-        console.log("📡 今日の筋値データを取得中: ユーザーID", user_id);
+    // 今日の筋トレ記録を取得
+    const [records] = await db.query(
+      `SELECT 
+        ex.category,  
+        ex.name AS exerciseName,
+        mr.weight,
+        mr.reps,
+        mr.muscle_value AS muscleValue
+      FROM muscle_records AS mr
+      INNER JOIN exercises AS ex ON mr.exercise_id = ex.id
+      WHERE mr.user_id = ? AND DATE(mr.recorded_at) = CURDATE()`,
+      [user_id]
+    );
 
-        const [records] = await db.query(
-            `SELECT 
-                ex.category,  
-                ex.name AS exerciseName,
-                mr.weight,
-                mr.reps,
-                mr.muscle_value AS muscleValue
-            FROM muscle_records AS mr
-            INNER JOIN exercises AS ex ON mr.exercise_id = ex.id
-            WHERE mr.user_id = ? AND DATE(mr.recorded_at) = CURDATE()`,
-            [user_id]
-        );
-
-        if (!records || records.length === 0) {
-            return res.status(404).json({ message: "⚠️ 今日のデータがありません。" });
-        }
-
-        const totalMuscleValue = records.reduce((sum, record) => sum + record.muscleValue, 0);
-
-        res.json({ records, totalMuscleValue });
-    } catch (err) {
-        console.error("❌ データ取得エラー:", err);
-        res.status(500).json({ error: "データ取得に失敗しました。" });
+    // データ存在チェック
+    if (!records || records.length === 0) {
+      return res.status(404).json({ message: "⚠️ 今日のデータがありません。" });
     }
+
+    // 総筋トレ値を計算
+    const totalMuscleValue = records.reduce((sum, record) => sum + record.muscleValue, 0);
+
+    // 成功時のレスポンス
+    return res.json({ records, totalMuscleValue });
+  } catch (error) {
+    // エラー発生時のログ出力とレスポンス
+    console.error("🚨 データ取得エラー:", error);
+    return res.status(500).json({ error: "❌ データ取得に失敗しました。" });
+  }
 };
