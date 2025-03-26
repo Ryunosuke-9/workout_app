@@ -5,43 +5,41 @@ require("dotenv").config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
-// **ユーザーIDで検索**
+// 🔸ユーザーIDで検索
 const findUserByUserId = async (user_id) => { 
-    const [rows] = await db.query("SELECT id, user_id, password FROM users WHERE user_id = ?", [user_id]);
+    const [rows] = await db.execute("SELECT id, user_id, password FROM users WHERE user_id = ?", [user_id]);
     return rows.length > 0 ? rows[0] : null;
 };
 
-// **パスワードを比較**
+// 🔸パスワードを比較
 const comparePassword = async (inputPassword, hashedPassword) => {
     return await bcrypt.compare(inputPassword, hashedPassword);
 };
 
-// **ログイン処理**
+// 🔹ログイン処理
 exports.loginUser = async (req, res) => {
     try {
         const { user_id, password } = req.body;
         if (!user_id || !password) {
-            return res.status(400).json({ error: "すべての項目を入力してください。" });
+            return res.status(400).json({ error: "⚠️ すべての項目を入力してください。" });
         }
-
-        console.log("ログインリクエスト: ユーザーID", user_id);
 
         const user = await findUserByUserId(user_id);
         if (!user) {
-            return res.status(400).json({ error: "ユーザーIDまたはパスワードが間違っています。" });
+            return res.status(400).json({ error: "⚠️ ユーザーIDまたはパスワードが間違っています。" });
         }
 
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ error: "ユーザーIDまたはパスワードが間違っています。" });
+            return res.status(400).json({ error: "⚠️ ユーザーIDまたはパスワードが間違っています。" });
         }
 
         // ✅ **トークンの有効期限を12時間 (`12h`) に設定**
         const token = jwt.sign({ user_id: user.user_id }, SECRET_KEY, { expiresIn: "12h" });
 
-        res.json({ message: "ログイン成功", token, user_id: user.user_id });
-    } catch (err) {
-        console.error("ログインエラー:", err);
-        res.status(500).json({ error: "ログインに失敗しました。" });
+        res.status(200).json({ message: "✅ ログイン成功！", token, user_id: user.user_id });
+    } catch (error) {
+        console.error("❌ サーバーエラー:", error);
+        res.status(500).json({ error: "❌ サーバーエラーが発生しました" });
     }
 };
