@@ -5,18 +5,18 @@ require("dotenv").config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
-// 🔸ユーザーIDで検索
+// **ユーザーIDで検索**
 const findUserByUserId = async (user_id) => { 
     const [rows] = await db.execute("SELECT id, user_id, password FROM users WHERE user_id = ?", [user_id]);
     return rows.length > 0 ? rows[0] : null;
 };
 
-// 🔸パスワードを比較
+// **パスワードを比較**
 const comparePassword = async (inputPassword, hashedPassword) => {
     return await bcrypt.compare(inputPassword, hashedPassword);
 };
 
-// 🔹ログイン処理
+// **ログイン処理**
 exports.loginUser = async (req, res) => {
     try {
         const { user_id, password } = req.body;
