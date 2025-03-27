@@ -1,15 +1,22 @@
 const mysql = require("mysql2");
-require('dotenv').config({ path: __dirname + '/../.env' });
+require("dotenv").config({ path: __dirname + "/../.env" });
 
-console.log("DB_USER:", process.env.DB_USER);
+// 必須の環境変数の存在チェック
+const requiredEnvVars = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`🚨 環境変数 ${envVar} が設定されていません。`);
+    process.exit(1);
+  }
+}
 
-// MySQL データベース接続設定
+// データベース接続プールの作成
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,       // データベースのホスト名（例: localhost）
+  host: process.env.DB_HOST,
   port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER,       // MySQLのユーザー名
-  password: process.env.DB_PASSWORD, // MySQLのパスワード
-  database: process.env.DB_NAME,   // 使用するデータベース名
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

@@ -3,7 +3,7 @@ const { loginUser } = require("../controllers/login");
 
 const router = express.Router();
 
-// **ログインAPI**
+// ユーザーログインのルーティング
 router.post("/", loginUser);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const { registerUser } = require("../controllers/register");
 
 const router = express.Router();
 
-// **ユーザー登録API**
+// ユーザー登録のルーティング
 router.post("/", registerUser);
 
 module.exports = router;
