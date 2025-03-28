@@ -5,15 +5,12 @@ import styles from "@/styles/measure.module.css";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import useAuth from "@/hooks/auth";
 
-// API URLは環境変数から取得（未設定の場合はデフォルト値）
+// APIエンドポイントの定義
 const API_URL = "http://18.183.224.238/api/measure";
 
 const MeasurePage = () => {
-  // 認証チェック（未ログイン時は内部でリダイレクト）
   useAuth();
   const router = useRouter();
-
-  // 各種状態の管理
   const [category, setCategory] = useState("chest");
   const [exerciseName, setExerciseName] = useState("");
   const [exercises, setExercises] = useState([]);
@@ -23,55 +20,49 @@ const MeasurePage = () => {
   const [totalMuscleValue, setTotalMuscleValue] = useState(0);
   const [dailyRecords, setDailyRecords] = useState([]);
 
-  // 認証エラーハンドリング（useCallbackでメモ化）
-  const handleAuthError = useCallback(
-    (error) => {
-      if (error.response?.status === 403) {
-        console.error("🚨 認証エラー: トークン無効");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user_id");
-        setMessage("⚠️ セッションが切れました。再ログインしてください。");
-        setTimeout(() => router.push("/login"), 1000);
-      } else {
-        console.error("❌ APIエラー:", error);
-        setMessage("⚠️ サーバーエラーが発生しました。");
-      }
-    },
-    [router]
-  );
+  // 認証エラー処理
+  const handleAuthError = useCallback((error) => {
+    if (error.response?.status === 403) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+      setMessage("⚠️ セッションが切れました。再ログインしてください。");
+      setTimeout(() => router.push("/login"), 1000);
+    } else {
+      setMessage("⚠️ サーバーエラーが発生しました。");
+    }
+  }, [router]);
 
   // 入力値変更時の処理
   const handleInputChange = (event, exercise_id, field) => {
     const { value } = event.target;
     if (value === "" || isNaN(value) || Number(value) < 0) return;
-    setExerciseData((prev) => ({
+    
+    setExerciseData(prev => ({
       ...prev,
-      [exercise_id]: { ...prev[exercise_id], [field]: value },
+      [exercise_id]: { ...prev[exercise_id], [field]: value }
     }));
   };
 
-  // 部位変更時に種目一覧を取得
-  const fetchExercises = useCallback(
-    async (selectedCategory) => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        handleAuthError({ response: { status: 403 } });
-        return;
-      }
-      try {
-        console.log(`📡 ${selectedCategory} の種目を取得中...`);
-        const response = await axios.get(
-          `${API_URL}/exercises/${selectedCategory}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setExercises(response.data);
-      } catch (err) {
-        handleAuthError(err);
-      }
-    },
-    [handleAuthError]
-  );
+  // 部位に応じた種目一覧を取得
+  const fetchExercises = useCallback(async (selectedCategory) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      handleAuthError({ response: { status: 403 } });
+      return;
+    }
+    
+    try {
+      const response = await axios.get(
+        `${API_URL}/exercises/${selectedCategory}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setExercises(response.data);
+    } catch (err) {
+      handleAuthError(err);
+    }
+  }, [handleAuthError]);
 
+  // 部位変更時に種目一覧を更新
   useEffect(() => {
     fetchExercises(category);
   }, [category, fetchExercises]);
@@ -79,9 +70,9 @@ const MeasurePage = () => {
   // 新しい種目を追加
   const handleAddExercise = async () => {
     if (!exerciseName.trim()) return;
+    
     const token = localStorage.getItem("token");
     try {
-      console.log("📡 新しい種目を追加:", { exerciseName, category });
       await axios.post(
         `${API_URL}/exercises`,
         { name: exerciseName, category },
@@ -96,13 +87,12 @@ const MeasurePage = () => {
 
   // 種目を削除
   const handleDelete = async (exercise_id) => {
-    // １段階目の確認（履歴も削除される旨を明示）
+    // 確認ダイアログ表示
     const firstConfirm = window.confirm(
       "本当にこの種目を削除してよろしいですか？この種目で行ってきた履歴も消えてしまいます。"
     );
     if (!firstConfirm) return;
 
-    // ２段階目の確認
     const secondConfirm = window.confirm(
       "この操作は取り消せません。本当に削除してよろしいですか？"
     );
@@ -110,14 +100,12 @@ const MeasurePage = () => {
 
     const token = localStorage.getItem("token");
     try {
-      console.log("📡 種目を削除:", exercise_id);
       await axios.delete(`${API_URL}/${exercise_id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
       setMessage("✅ 種目を削除しました！");
       fetchExercises(category);
     } catch (err) {
-      console.error("❌ 削除エラー:", err.response?.data || err);
       handleAuthError(err);
     }
   };
@@ -125,24 +113,33 @@ const MeasurePage = () => {
   // 筋トレ記録の送信
   const handleSubmit = async (exercise_id) => {
     const { weight, reps } = exerciseData[exercise_id] || {};
+    
+    // 入力値のバリデーション
     if (!weight || !reps) {
       setMessage("⚠️ 重量と回数を入力してください！");
       return;
     }
-    const token = localStorage.getItem("token");
+    
     setIsLoading(true);
     setMessage("");
+    const token = localStorage.getItem("token");
+    
     try {
-      console.log("📡 筋トレ記録送信:", { exercise_id, weight, reps });
       await axios.post(
         API_URL,
-        { exercise_id, weight: Number(weight), reps: Number(reps) },
+        { 
+          exercise_id, 
+          weight: Number(weight), 
+          reps: Number(reps) 
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
+      // 成功時の処理
       setMessage("✅ 記録しました！💪");
-      setExerciseData((prev) => ({
+      setExerciseData(prev => ({
         ...prev,
-        [exercise_id]: { weight: "", reps: "" },
+        [exercise_id]: { weight: "", reps: "" }
       }));
       fetchDailyMuscleValue();
     } catch (err) {
@@ -155,10 +152,10 @@ const MeasurePage = () => {
   // 今日の筋値データを取得
   const fetchDailyMuscleValue = useCallback(async () => {
     const token = localStorage.getItem("token");
+    
     try {
-      console.log("📡 今日の筋値データを取得中...");
       const response = await axios.get(`${API_URL}/daily-muscle-summary`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
       setDailyRecords(response.data.records || []);
       setTotalMuscleValue(response.data.totalMuscleValue || 0);
@@ -167,20 +164,20 @@ const MeasurePage = () => {
     }
   }, [handleAuthError]);
 
+  // 初回マウント時に今日の筋値データを取得
   useEffect(() => {
     fetchDailyMuscleValue();
   }, [fetchDailyMuscleValue]);
 
   return (
     <div className={styles.pageContainer}>
-
       <div className={styles.headerContainer}>
         <h1 className={styles.headerTitle}>総負荷量計測</h1>
         <HamburgerMenu />
       </div>
 
       <div className={styles.contentContainer}>
-        {/* 左カラム */}
+        {/* 左カラム - 入力フォーム */}
         <div className={styles.leftColumn}>
           {/* 部位選択と種目登録 */}
           <div className={styles.topRowContainer}>
@@ -199,6 +196,7 @@ const MeasurePage = () => {
                 <option value="legs">脚</option>
               </select>
             </div>
+            
             {/* 種目登録 */}
             <div className={`${styles.EventRegister} ${styles.BoxContainer}`}>
               <h2>種目を登録</h2>
@@ -210,7 +208,10 @@ const MeasurePage = () => {
                   placeholder="新しい種目名を入力"
                   className={styles.EventInput}
                 />
-                <button onClick={handleAddExercise} className={styles.EventButton}>
+                <button 
+                  onClick={handleAddExercise} 
+                  className={styles.EventButton}
+                >
                   追加
                 </button>
               </div>
@@ -220,6 +221,8 @@ const MeasurePage = () => {
           {/* 登録済みの種目一覧 */}
           <div className={styles.ExerciseContainer}>
             <h2>登録済みの種目</h2>
+            {message && <p className={styles.message}>{message}</p>}
+            
             <table className={styles.ExerciseTable}>
               <thead>
                 <tr>
@@ -274,7 +277,7 @@ const MeasurePage = () => {
           </div>
         </div>
 
-        {/* 右カラム（今日の筋値） */}
+        {/* 右カラム - 今日の記録表示 */}
         <div className={styles.rightColumn}>
           <h2 className={styles.TodayMuscleValue}>今日の記録</h2>
           <p className={styles.totalMuscleValue}>
