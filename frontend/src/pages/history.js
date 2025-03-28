@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -11,118 +10,31 @@ import {
 } from "recharts";
 import styles from "@/styles/history.module.css";
 import HamburgerMenu from "@/components/HamburgerMenu";
-import useAuth from "@/hooks/auth";
-
-const API_URL = "http://18.183.224.238/api/history";
+import useHistory from "@/hooks/useHistory";
 
 const HistoryPage = () => {
-  useAuth();
-  const router = useRouter();
+  const {
+    // 状態
+    dailyHistory,
+    selectedDate,
+    availableDates,
+    categoryTotals,
+    overallTotal,
+    weeklyData,
+    message,
 
-  const [dailyHistory, setDailyHistory] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [availableDates, setAvailableDates] = useState([]);
-  const [categoryTotals, setCategoryTotals] = useState([]);
-  const [overallTotal, setOverallTotal] = useState(0);
-  const [weeklyData, setWeeklyData] = useState([]);
+    // アクション
+    fetchInitialData,
+    handleDateChange
+  } = useHistory();
+
+  // グラフ表示用の状態
   const [selectedCategory, setSelectedCategory] = useState("total_muscle");
-  const [message, setMessage] = useState("");
 
-  const getToken = () => localStorage.getItem("token");
-
-  const handleAuthError = useCallback(
-    (error) => {
-      console.error("❌ 認証/データ取得エラー:", error);
-      if (
-        error.message.includes("403") ||
-        error.message.includes("トークンが存在しません")
-      ) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user_id");
-        setMessage("⚠️ セッションが切れました。再ログインしてください。");
-        setTimeout(() => router.push("/login"), 1000);
-      }
-    },
-    [router]
-  );
-
-  const fetchDailyHistory = useCallback(async (dateStr) => {
-    try {
-      const token = getToken();
-      if (!token) throw new Error("トークンが存在しません");
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await fetch(`${API_URL}/daily?date=${dateStr}`, {
-        headers,
-      });
-      if (!response.ok) {
-        throw new Error(`データ取得エラー: ${response.status}`);
-      }
-      const data = await response.json();
-      setDailyHistory(data.dailyHistory ?? []);
-    } catch (error) {
-      console.error("❌ 日付ごとの履歴取得エラー:", error);
-      handleAuthError(error);
-    }
-  }, [handleAuthError]);
-
+  // 初期データ取得
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = getToken();
-        if (!token) throw new Error("トークンが存在しません");
-        const headers = { Authorization: `Bearer ${token}` };
-
-        const totalResponse = await fetch(`${API_URL}/totals`, { headers });
-        if (!totalResponse.ok) throw new Error(`サーバーエラー: ${totalResponse.status}`);
-        const totalData = await totalResponse.json();
-        setCategoryTotals(totalData.categoryTotals ?? []);
-        setOverallTotal(totalData.overallTotal ?? 0);
-
-        const weeklyResponse = await fetch(`${API_URL}/weekly`, { headers });
-        if (!weeklyResponse.ok) throw new Error(`サーバーエラー: ${weeklyResponse.status}`);
-        const weeklyDataJson = await weeklyResponse.json();
-        console.log("🚀 WEEKLY API RESPONSE:", weeklyDataJson);
-        setWeeklyData(weeklyDataJson.weeklyData ?? []);
-
-        const datesResponse = await fetch(`${API_URL}/dates`, { headers });
-        if (!datesResponse.ok) throw new Error(`サーバーエラー: ${datesResponse.status}`);
-        const datesData = await datesResponse.json();
-        if (Array.isArray(datesData.dates) && datesData.dates.length > 0) {
-          setAvailableDates(datesData.dates);
-          const initialDate = datesData.dates[0];
-          setSelectedDate(initialDate);
-          fetchDailyHistory(initialDate);
-        } else {
-          setAvailableDates([]);
-        }
-      } catch (error) {
-        console.error("❌ データ取得エラー:", error);
-        handleAuthError(error);
-      }
-    };
-
-    fetchData();
-  }, [fetchDailyHistory, handleAuthError, router]);
-
-  const handleDateChange = (e) => {
-    const newDate = e.target.value;
-    setSelectedDate(newDate);
-    fetchDailyHistory(newDate);
-  };
-
-  const maxYValue =
-    weeklyData && weeklyData.length > 0
-      ? Math.max(...weeklyData.map((d) => Number(d[selectedCategory]) || 0), 100)
-      : 100;
-
-  const formatDateForDisplay = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+    fetchInitialData();
+  }, [fetchInitialData]);
 
   return (
     <div className={styles.pageContainer}>
@@ -132,21 +44,30 @@ const HistoryPage = () => {
       </div>
 
       <div className={styles.columnsContainer}>
+        {/* 左カラム - 日付ごとの履歴 */}
         <div className={styles.leftColumn}>
           <div className={styles.historyHeader}>
             <h2 className={styles.historyTitle}>日付ごとの履歴</h2>
             <select
               className={styles.dateSelect}
-              onChange={handleDateChange}
+              onChange={(e) => handleDateChange(e.target.value)}
               value={selectedDate}
             >
               {availableDates.map((date) => (
                 <option key={date} value={date}>
-                  {formatDateForDisplay(date)}
+                  {(() => {
+                    const date2 = new Date(date);
+                    return date2.toLocaleDateString("ja-JP", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    });
+                  })()}
                 </option>
               ))}
             </select>
           </div>
+          
           {dailyHistory.length > 0 ? (
             <table className={styles.historyTable}>
               <thead>
@@ -175,6 +96,7 @@ const HistoryPage = () => {
           )}
         </div>
 
+        {/* 右カラム - 筋値の合計 */}
         <div className={styles.rightColumn}>
           <h2>部位と総合の総負荷量</h2>
           {categoryTotals.length > 0 ? (
@@ -204,6 +126,7 @@ const HistoryPage = () => {
         </div>
       </div>
 
+      {/* グラフ表示部分 */}
       <div className={styles.graphContainer}>
         <h2>週ごとの筋値推移</h2>
         <label className={styles.graphSelectLabel}>
@@ -221,6 +144,7 @@ const HistoryPage = () => {
             <option value="shoulders">肩</option>
           </select>
         </label>
+        
         <ResponsiveContainer width="90%" height={500}>
           <LineChart data={weeklyData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -231,14 +155,31 @@ const HistoryPage = () => {
                 return `W${week}`;
               }}
             />
-            <YAxis domain={[0, maxYValue]} />
-            <Tooltip 
-              wrapperStyle={{ pointerEvents: "auto" }} // ツールチップの動作をスムーズに
-              contentStyle={{ backgroundColor: "var(--tooltip-bg)", color: "var(--tooltip-text)", border: "1px solid var(--tooltip-border)" }} 
+            <YAxis 
+              domain={[
+                0, 
+                weeklyData.length > 0
+                  ? Math.max(...weeklyData.map((d) => Number(d[selectedCategory]) || 0), 100)
+                  : 100
+              ]} 
             />
-            <Line type="monotone" dataKey={selectedCategory} stroke="#ffcc00" strokeWidth={2} />
+            <Tooltip 
+              wrapperStyle={{ pointerEvents: "auto" }}
+              contentStyle={{ 
+                backgroundColor: "var(--tooltip-bg)", 
+                color: "var(--tooltip-text)", 
+                border: "1px solid var(--tooltip-border)" 
+              }} 
+            />
+            <Line 
+              type="monotone" 
+              dataKey={selectedCategory} 
+              stroke="#ffcc00" 
+              strokeWidth={2} 
+            />
           </LineChart>
         </ResponsiveContainer>
+        
         {message && <p className={styles.message}>{message}</p>}
       </div>
     </div>

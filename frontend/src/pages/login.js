@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/login.module.css";
 
-// APIエンドポイントの定義
 const API_URL = "http://18.183.224.238/api/login";
 
 const Login = () => {

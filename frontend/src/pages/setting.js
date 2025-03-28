@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/setting.module.css";
-import useAuth from "@/hooks/auth";
+import useAuth from "@/hooks/useAuth";
 import HamburgerMenu from "@/components/HamburgerMenu";
 
 const API_URL = "http://18.183.224.238/api/setting";
